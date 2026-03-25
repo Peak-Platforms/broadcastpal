@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BroadcastPal — Your Topic. Your Voice. On Air 24/7.</title>
-<meta name="description" content="BroadcastPal turns any topic into a 24/7 AI radio station — automatically. Powered by Peak Platforms.">
+<title>BroadcastPal — Your Sport. Your Voice. On Air 24/7.</title>
+<meta name="description" content="BroadcastPal gives any sports community a live radio station, branded website, and AI chatbot — deployed in 24 hours. Powered by Peak Platforms.">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -102,7 +102,7 @@ nav {
   padding: 10px 20px !important;
 }
 
-.nav-cta:hover { background: var(--signal); color: white !important; }
+.nav-cta:hover { background: var(--signal) !important; color: white !important; }
 
 /* ─── Hero ─── */
 .hero {
@@ -114,7 +114,6 @@ nav {
   overflow: hidden;
 }
 
-/* Signal wave background */
 .hero::before {
   content: '';
   position: absolute;
@@ -181,10 +180,36 @@ nav {
   line-height: 1.5;
   color: #3a3530;
   max-width: 480px;
-  margin-bottom: 48px;
+  margin-bottom: 32px;
   font-style: italic;
   opacity: 0;
   animation: fadeUp 0.6s ease 0.6s forwards;
+}
+
+.hero-proof {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--muted);
+  margin-bottom: 40px;
+  opacity: 0;
+  animation: fadeUp 0.6s ease 0.7s forwards;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hero-proof a {
+  color: var(--signal);
+  text-decoration: none;
+}
+
+.hero-proof a:hover { text-decoration: underline; }
+
+.hero-proof::before {
+  content: '▶';
+  font-size: 9px;
+  color: var(--signal);
 }
 
 .hero-actions {
@@ -298,7 +323,6 @@ nav {
   margin-bottom: 24px;
 }
 
-/* Waveform animation */
 .waveform {
   display: flex;
   align-items: center;
@@ -373,7 +397,6 @@ nav {
   color: rgba(245,240,232,0.4);
 }
 
-/* Queue cards below */
 .queue-preview {
   margin-top: 12px;
   display: flex;
@@ -414,10 +437,57 @@ nav {
   flex-shrink: 0;
 }
 
-/* ─── How it works ─── */
+/* ─── What You Get ─── */
+.features {
+  padding: 100px 80px;
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  margin-top: 64px;
+}
+
+.feature-block {
+  background: rgba(245,240,232,0.03);
+  border: 1px solid rgba(245,240,232,0.08);
+  padding: 40px 32px;
+  transition: all 0.3s;
+}
+
+.feature-block:hover {
+  background: rgba(255,61,0,0.05);
+  border-color: rgba(255,61,0,0.2);
+}
+
+.feature-icon {
+  font-size: 32px;
+  margin-bottom: 20px;
+  display: block;
+}
+
+.feature-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  letter-spacing: 2px;
+  color: var(--paper);
+  margin-bottom: 12px;
+}
+
+.feature-desc {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  line-height: 1.9;
+  color: rgba(245,240,232,0.45);
+}
+
+/* ─── Pipeline ─── */
 .pipeline {
   padding: 120px 80px;
-  background: var(--ink);
+  background: #0f0f1a;
   color: var(--paper);
   position: relative;
   overflow: hidden;
@@ -471,7 +541,6 @@ nav {
   position: relative;
 }
 
-/* Connecting line */
 .steps::before {
   content: '';
   position: absolute;
@@ -500,14 +569,8 @@ nav {
   color: var(--signal);
   margin-bottom: 24px;
   position: relative;
-  background: var(--ink);
+  background: #0f0f1a;
   z-index: 2;
-}
-
-.step-icon {
-  font-size: 24px;
-  margin-bottom: 16px;
-  display: block;
 }
 
 .step-name {
@@ -566,6 +629,31 @@ nav {
 
 .case-card:hover::before { height: 100%; }
 
+.case-card.flagship {
+  background: var(--wire);
+  color: var(--paper);
+  border-color: var(--wire);
+}
+
+.case-card.flagship:hover {
+  box-shadow: 8px 8px 0 var(--signal);
+  border-color: var(--signal);
+}
+
+.case-card.flagship .case-desc { color: rgba(245,240,232,0.6); }
+
+.case-badge {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  background: var(--signal);
+  color: white;
+  padding: 3px 8px;
+  text-transform: uppercase;
+  display: inline-block;
+  margin-bottom: 16px;
+}
+
 .case-icon {
   font-size: 36px;
   margin-bottom: 20px;
@@ -584,6 +672,37 @@ nav {
   line-height: 1.7;
   color: #5a5048;
   font-style: italic;
+}
+
+/* ─── Proof strip ─── */
+.proof-strip {
+  background: var(--signal);
+  padding: 24px 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 64px;
+}
+
+.proof-item {
+  text-align: center;
+  color: white;
+}
+
+.proof-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 48px;
+  letter-spacing: 2px;
+  line-height: 1;
+  display: block;
+}
+
+.proof-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  opacity: 0.85;
+  text-transform: uppercase;
 }
 
 /* ─── Pricing ─── */
@@ -638,10 +757,20 @@ nav {
   font-family: 'DM Mono', monospace;
   font-size: 11px;
   color: var(--muted);
-  margin-bottom: 32px;
+  margin-bottom: 8px;
 }
 
 .price-card.featured .price-period { color: rgba(245,240,232,0.5); }
+
+.price-tagline {
+  font-size: 14px;
+  font-style: italic;
+  color: #5a5048;
+  margin-bottom: 32px;
+  line-height: 1.5;
+}
+
+.price-card.featured .price-tagline { color: rgba(245,240,232,0.65); }
 
 .price-features {
   list-style: none;
@@ -668,6 +797,7 @@ nav {
   content: '→';
   color: var(--signal);
   font-size: 12px;
+  flex-shrink: 0;
 }
 
 .price-btn {
@@ -715,7 +845,105 @@ nav {
   text-transform: uppercase;
 }
 
-/* ─── Peak Platforms footer ─── */
+.price-note {
+  text-align: center;
+  margin-top: 32px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 1px;
+}
+
+/* ─── CTA Banner ─── */
+.cta-banner {
+  padding: 100px 80px;
+  background: var(--wire);
+  color: var(--paper);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.cta-banner::before {
+  content: 'ON AIR';
+  position: absolute;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 300px;
+  color: rgba(255,255,255,0.02);
+  letter-spacing: 30px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.cta-headline {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(48px, 6vw, 80px);
+  letter-spacing: 3px;
+  line-height: 1;
+  margin-bottom: 24px;
+  position: relative;
+  z-index: 2;
+}
+
+.cta-headline .accent { color: var(--signal); }
+
+.cta-sub {
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  color: rgba(245,240,232,0.5);
+  letter-spacing: 2px;
+  margin-bottom: 48px;
+  position: relative;
+  z-index: 2;
+}
+
+.cta-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  position: relative;
+  z-index: 2;
+}
+
+.btn-signal {
+  background: var(--signal);
+  color: white;
+  padding: 18px 48px;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: 2px solid var(--signal);
+  transition: all 0.2s;
+}
+
+.btn-signal:hover {
+  background: transparent;
+  color: var(--signal);
+}
+
+.btn-ghost {
+  color: rgba(245,240,232,0.6);
+  padding: 18px 32px;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: 1px solid rgba(245,240,232,0.2);
+  transition: all 0.2s;
+}
+
+.btn-ghost:hover {
+  border-color: var(--paper);
+  color: var(--paper);
+}
+
+/* ─── Footer ─── */
 .footer {
   background: var(--ink);
   color: rgba(245,240,232,0.5);
@@ -765,10 +993,14 @@ nav {
   .hero-left { padding: 100px 32px 60px; }
   .steps { grid-template-columns: 1fr 1fr; gap: 32px; }
   .steps::before { display: none; }
-  .cases-grid, .pricing-grid { grid-template-columns: 1fr; }
+  .cases-grid, .pricing-grid, .features-grid { grid-template-columns: 1fr; }
   nav { padding: 16px 24px; }
-  .pipeline, .usecases, .pricing { padding: 80px 32px; }
+  .nav-links { display: none; }
+  .pipeline, .usecases, .pricing, .features { padding: 80px 32px; }
+  .proof-strip { flex-direction: column; gap: 32px; padding: 40px 32px; }
   .footer { flex-direction: column; gap: 24px; text-align: center; padding: 40px 32px; }
+  .cta-banner { padding: 80px 32px; }
+  .cta-actions { flex-direction: column; align-items: center; }
 }
 </style>
 </head>
@@ -780,39 +1012,42 @@ nav {
     BROADCASTPAL
   </div>
   <ul class="nav-links">
-    <li><a href="#how">How It Works</a></li>
+    <li><a href="#features">Features</a></li>
     <li><a href="#usecases">Use Cases</a></li>
     <li><a href="#pricing">Pricing</a></li>
-    <li><a href="/cdn-cgi/l/email-protection#e48f81928d8aa49481858fc994888590828b968997ca878b89" class="nav-cta">Get Started</a></li>
+    <li><a href="mailto:kevin@peak-platforms.com" class="nav-cta">Get Started</a></li>
   </ul>
 </nav>
 
 <!-- ─── Hero ─── -->
 <section class="hero">
   <div class="hero-left">
-    <div class="hero-eyebrow">Peak Platforms — AI Broadcast Infrastructure</div>
+    <div class="hero-eyebrow">Peak Platforms — Sports Broadcast Infrastructure</div>
     <h1 class="hero-headline">
-      Your Topic.<br>
+      Your Sport.<br>
       Your Voice.<br>
       <span class="accent">On Air 24/7.</span>
     </h1>
     <p class="hero-sub">
-      BroadcastPal is a fully managed AI broadcast service — we handle everything.
-      You tell us your topic, we deliver a 24/7 radio station in your voice.
-      No studio. No staff. No setup. No API keys. Just signal.
+      BroadcastPal gives any sports community a live radio station,
+      branded website, and AI chatbot — deployed in 24 hours.
+      No setup fees. No contracts. Any sport. Any level.
     </p>
+    <div class="hero-proof">
+      Powering <a href="https://xsen.fun" target="_blank">XSEN — The Fans' Network</a> &nbsp;·&nbsp; Flagship deployment live now
+    </div>
     <div class="hero-actions">
-      <a href="/cdn-cgi/l/email-protection#93f8f6e5fafdd3e3f6f2f8bee3fff2e7f5fce1fee0bdf0fcfe" class="btn-primary">Request Demo</a>
-      <a href="#how" class="btn-secondary">See How It Works →</a>
+      <a href="mailto:kevin@peak-platforms.com" class="btn-primary">Request Demo</a>
+      <a href="#features" class="btn-secondary">See What's Included →</a>
     </div>
   </div>
 
   <div class="hero-right">
     <div class="signal-display">
       <div class="signal-card">
-        <div class="signal-label">Now Playing — XSEN FanCast / OU Channel</div>
-        <div class="signal-title">Private Equity's Play for College Football — What Fans Need to Know</div>
-        <div class="signal-meta">Full Episode · 6 min · AI Generated · Your Voice</div>
+        <div class="signal-label">Now Playing — XSEN FanCast / Sooner Nation</div>
+        <div class="signal-title">Sooners Enter SEC — What It Means for Fans</div>
+        <div class="signal-meta">Full Episode · 6 min · AI Generated · Fan Voice</div>
         <div class="waveform">
           <div class="wave-bar"></div><div class="wave-bar"></div>
           <div class="wave-bar"></div><div class="wave-bar"></div>
@@ -837,54 +1072,64 @@ nav {
       <div class="queue-preview">
         <div class="queue-item">
           <span class="queue-num">02</span>
-          <span class="queue-text">Trump Signs Executive Order on NIL Payments</span>
-          <span class="queue-dur">7m</span>
+          <span class="queue-text">Friday Night Lights — Southlake Carroll Preview</span>
+          <span class="queue-dur">5m</span>
         </div>
         <div class="queue-item">
           <span class="queue-num">03</span>
-          <span class="queue-text">Utah's $500M Deal: The PE Seal Is Broken</span>
-          <span class="queue-dur">6m</span>
+          <span class="queue-text">Little League World Series — Oklahoma Region Update</span>
+          <span class="queue-dur">4m</span>
         </div>
         <div class="queue-item">
           <span class="queue-num">04</span>
-          <span class="queue-text">House v. NCAA: What the $2.8B Settlement Means</span>
-          <span class="queue-dur">8m</span>
+          <span class="queue-text">NIL Roundup — What High School Athletes Need to Know</span>
+          <span class="queue-dur">7m</span>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ─── Pipeline ─── -->
-<section class="pipeline" id="how">
-  <div class="section-label">How It Works</div>
-  <h2 class="section-title">News to Audio.<br>Fully Automatic.</h2>
+<!-- ─── Proof Strip ─── -->
+<div class="proof-strip">
+  <div class="proof-item">
+    <span class="proof-num">24hrs</span>
+    <span class="proof-label">Deployed in</span>
+  </div>
+  <div class="proof-item">
+    <span class="proof-num">3</span>
+    <span class="proof-label">Products in One</span>
+  </div>
+  <div class="proof-item">
+    <span class="proof-num">24/7</span>
+    <span class="proof-label">Automated Broadcast</span>
+  </div>
+  <div class="proof-item">
+    <span class="proof-num">$0</span>
+    <span class="proof-label">Setup Fee</span>
+  </div>
+</div>
 
-  <div class="steps">
-    <div class="step">
-      <div class="step-num">01</div>
-      <div class="step-name">Scrape</div>
-      <p class="step-desc">BroadcastPal monitors RSS feeds, Google News, and custom sources for your topic — every 2 hours, around the clock.</p>
+<!-- ─── What You Get ─── -->
+<section class="features" id="features">
+  <div class="section-label">What You Get</div>
+  <h2 class="section-title">Three Products.<br>One Flat Price.</h2>
+
+  <div class="features-grid">
+    <div class="feature-block">
+      <span class="feature-icon">📻</span>
+      <div class="feature-title">Live Radio Station</div>
+      <p class="feature-desc">A fully operational 24/7 audio stream on your own branded URL. AI-generated sports content runs automatically. Fans tune in from any device, anywhere.</p>
     </div>
-    <div class="step">
-      <div class="step-num">02</div>
-      <div class="step-name">Score</div>
-      <p class="step-desc">AI scores every story 1–10 for relevance to your audience. Only the most important stories make it through.</p>
+    <div class="feature-block">
+      <span class="feature-icon">🌐</span>
+      <div class="feature-title">Branded Website</div>
+      <p class="feature-desc">A custom-designed landing page for your team, school, or fan community. Embedded live player, schedule, roster, and news — live in hours, not weeks.</p>
     </div>
-    <div class="step">
-      <div class="step-num">03</div>
-      <div class="step-name">Script</div>
-      <p class="step-desc">Claude writes broadcast-ready episode scripts in your brand voice — localized per channel, per audience.</p>
-    </div>
-    <div class="step">
-      <div class="step-num">04</div>
-      <div class="step-name">Voice</div>
-      <p class="step-desc">ElevenLabs renders each script in your cloned voice. Your sound, your personality — automatically delivered.</p>
-    </div>
-    <div class="step">
-      <div class="step-num">05</div>
-      <div class="step-name">Broadcast</div>
-      <p class="step-desc">Finished episodes upload directly to AzuraCast and schedule to air on your station — 24/7, no hands required.</p>
+    <div class="feature-block">
+      <span class="feature-icon">🤖</span>
+      <div class="feature-title">AI Sports Chatbot</div>
+      <p class="feature-desc">Your team's AI concierge. Provide your schedule, rules, and up to 3 key documents — roster, history, FAQ — and it handles fan questions around the clock. Load it once, it runs forever.</p>
     </div>
   </div>
 </section>
@@ -893,39 +1138,40 @@ nav {
 <section class="usecases" id="usecases">
   <div class="section-label">Use Cases</div>
   <h2 class="section-title" style="font-family:'Bebas Neue',sans-serif;font-size:clamp(40px,5vw,64px);letter-spacing:2px;line-height:1;margin-bottom:0">
-    Any Topic.<br>Any Audience.
+    Any Sport.<br>Any Level.
   </h2>
 
   <div class="cases-grid">
-    <div class="case-card">
+    <div class="case-card flagship">
+      <div class="case-badge">Flagship</div>
       <span class="case-icon">🏈</span>
-      <div class="case-title">Sports Networks</div>
-      <p class="case-desc">School-specific fan channels, recruiting updates, game previews and recaps — automated and localized per team.</p>
+      <div class="case-title">College Fan Networks</div>
+      <p class="case-desc">School-specific fan channels with AI sports companions, live audio, and automated game content. XSEN — The Fans' Network — is our flagship deployment, live now at xsen.fun.</p>
+    </div>
+    <div class="case-card">
+      <span class="case-icon">🏟️</span>
+      <div class="case-title">High School Athletics</div>
+      <p class="case-desc">Friday night football, basketball, baseball — any sport, any school. Give your athletic department a professional broadcast presence without a production budget.</p>
+    </div>
+    <div class="case-card">
+      <span class="case-icon">⚾</span>
+      <div class="case-title">Youth & Little League</div>
+      <p class="case-desc">Parents and grandparents stay connected to every game. A branded community hub and live audio for youth sports organizations of any size.</p>
+    </div>
+    <div class="case-card">
+      <span class="case-icon">🏀</span>
+      <div class="case-title">Travel & Club Sports</div>
+      <p class="case-desc">Cheer gyms, travel basketball, select soccer — give your club a professional broadcast identity that follows your athletes to every tournament.</p>
     </div>
     <div class="case-card">
       <span class="case-icon">📻</span>
-      <div class="case-title">Local Radio</div>
-      <p class="case-desc">Small market stations run 24/7 content without production staff. Community news, local sports, weather — automated.</p>
-    </div>
-    <div class="case-card">
-      <span class="case-icon">⛪</span>
-      <div class="case-title">Faith Communities</div>
-      <p class="case-desc">Daily devotionals, scripture reflections, and church announcements voiced in the pastor's own cloned voice.</p>
-    </div>
-    <div class="case-card">
-      <span class="case-icon">💼</span>
-      <div class="case-title">Corporate Comms</div>
-      <p class="case-desc">Internal news channels, investor updates, HR communications — delivered as branded audio automatically.</p>
-    </div>
-    <div class="case-card">
-      <span class="case-icon">💙</span>
-      <div class="case-title">Wellness Platforms</div>
-      <p class="case-desc">Daily affirmations, mental health micro-episodes, and sleep content scheduled around your audience's day.</p>
+      <div class="case-title">Community Radio</div>
+      <p class="case-desc">Small market stations and community broadcasters run 24/7 local sports content without production staff. Automated, localized, always on.</p>
     </div>
     <div class="case-card">
       <span class="case-icon">🎙️</span>
-      <div class="case-title">Podcast Networks</div>
-      <p class="case-desc">Any niche topic — finance, true crime, real estate, politics — becomes a daily show with zero production overhead.</p>
+      <div class="case-title">FanCast — Fan Broadcasting</div>
+      <p class="case-desc">Any fan can become a broadcaster. Submit your own segments, host your own show, build your audience — all on the BroadcastPal network.</p>
     </div>
   </div>
 </section>
@@ -934,64 +1180,77 @@ nav {
 <section class="pricing" id="pricing">
   <div class="section-label">Pricing</div>
   <h2 class="section-title" style="font-family:'Bebas Neue',sans-serif;font-size:clamp(40px,5vw,64px);letter-spacing:2px;line-height:1;margin-bottom:16px">
-    Fully Managed.<br>Flat Monthly.
+    Simple.<br>Flat Monthly.
   </h2>
   <p style="font-family:'DM Mono',monospace;font-size:13px;color:var(--muted);max-width:560px;line-height:1.8;margin-bottom:0">
-    Every plan includes full management — we configure sources, clone your voice, run the pipeline, and keep your station on air. You just review and approve episodes before they broadcast.
+    Every plan includes your live radio station, branded website, and AI chatbot. No setup fees. No contracts. Live in 24 hours.
   </p>
 
   <div class="pricing-grid">
     <div class="price-card">
       <div class="price-tier">Starter</div>
-      <div class="price-amount">$149</div>
-      <div class="price-period">/ month + $299 setup</div>
+      <div class="price-amount">$99</div>
+      <div class="price-period">/ month</div>
+      <p class="price-tagline">Perfect for a single team, school, or fan community getting started.</p>
       <ul class="price-features">
-        <li>1 Topic Channel</li>
-        <li>Stock AI Voice</li>
-        <li>1 AzuraCast Station</li>
-        <li>30 Episodes/Month</li>
-        <li>Episode Review Dashboard</li>
-        <li>We Handle Everything</li>
+        <li>1 Branded Website</li>
+        <li>1 Live Radio Station</li>
+        <li>AI Sports Chatbot</li>
+        <li>Automated Daily Content</li>
+        <li>Custom Team Colors & Logo</li>
+        <li>Mobile Friendly</li>
         <li>Email Support</li>
       </ul>
-      <a href="/cdn-cgi/l/email-protection#0a616f7c63644a7a6f6b61277a666b7e6c6578677924696567" class="price-btn">Get Started</a>
+      <a href="mailto:kevin@peak-platforms.com?subject=BroadcastPal Starter" class="price-btn">Get Started</a>
     </div>
 
     <div class="price-card featured">
       <div class="featured-badge">Most Popular</div>
       <div class="price-tier">Pro</div>
-      <div class="price-amount">$299</div>
-      <div class="price-period">/ month + $299 setup</div>
+      <div class="price-amount">$199</div>
+      <div class="price-period">/ month</div>
+      <p class="price-tagline">For athletic departments, fan associations, and multi-sport organizations.</p>
       <ul class="price-features">
-        <li>3 Topic Channels</li>
-        <li>1 Cloned Voice (Your Voice)</li>
-        <li>3 AzuraCast Stations</li>
-        <li>60 Episodes/Month</li>
-        <li>Audience Localization</li>
-        <li>Episode Review Dashboard</li>
-        <li>We Handle Everything</li>
+        <li>3 Branded Websites</li>
+        <li>3 Live Radio Stations</li>
+        <li>3 AI Sports Chatbots</li>
+        <li>FanCast — Fan Submissions</li>
+        <li>Live Broadcaster Access</li>
+        <li>Custom Domain Setup</li>
         <li>Priority Support</li>
       </ul>
-      <a href="/cdn-cgi/l/email-protection#bad1dfccd3d4facadfdbd197cad6dbcedcd5c8d7c994d9d5d7" class="price-btn">Get Started</a>
+      <a href="mailto:kevin@peak-platforms.com?subject=BroadcastPal Pro" class="price-btn">Get Started</a>
     </div>
 
     <div class="price-card">
       <div class="price-tier">Network</div>
-      <div class="price-amount">$599</div>
-      <div class="price-period">/ month + $499 setup</div>
+      <div class="price-amount">$299</div>
+      <div class="price-period">/ month</div>
+      <p class="price-tagline">For leagues, conferences, and multi-school broadcast networks.</p>
       <ul class="price-features">
-        <li>10 Topic Channels</li>
-        <li>3 Cloned Voices</li>
-        <li>10 AzuraCast Stations</li>
-        <li>Unlimited Episodes</li>
+        <li>10 Branded Websites</li>
+        <li>10 Live Radio Stations</li>
+        <li>10 AI Sports Chatbots</li>
         <li>White Label — Your Brand</li>
-        <li>Custom Source Integrations</li>
-        <li>Social Audiogram Export</li>
-        <li>We Handle Everything</li>
-        <li>Direct Line Support</li>
+        <li>FanCast Network Access</li>
+        <li>Custom Integrations</li>
+        <li>Dedicated Support Line</li>
       </ul>
-      <a href="/cdn-cgi/l/email-protection#016a6477686f417164606a2c716d6075676e736c722f626e6c" class="price-btn">Contact Us</a>
+      <a href="mailto:kevin@peak-platforms.com?subject=BroadcastPal Network" class="price-btn">Contact Us</a>
     </div>
+  </div>
+  <p class="price-note">No setup fees · No contracts · Cancel anytime · Live in 24 hours</p>
+</section>
+
+<!-- ─── CTA Banner ─── -->
+<section class="cta-banner">
+  <h2 class="cta-headline">
+    Your Community<br>Deserves to Be<br><span class="accent">On Air.</span>
+  </h2>
+  <p class="cta-sub">Live radio · Branded site · AI chatbot · 24 hours · No setup fee</p>
+  <div class="cta-actions">
+    <a href="mailto:kevin@peak-platforms.com?subject=BroadcastPal Demo Request" class="btn-signal">Request Demo</a>
+    <a href="https://xsen.fun" target="_blank" class="btn-ghost">See It Live at XSEN →</a>
   </div>
 </section>
 
@@ -1000,4 +1259,13 @@ nav {
   <div class="footer-brand">
     BroadcastPal
     <span>A Peak Platforms Product · broadcastpal.fun</span>
-  </d
+  </div>
+  <div class="footer-links">
+    <a href="https://peak-platforms.com">Peak Platforms</a>
+    <a href="https://xsen.fun">XSEN</a>
+    <a href="mailto:kevin@peak-platforms.com">Contact</a>
+  </div>
+</footer>
+
+</body>
+</html>
