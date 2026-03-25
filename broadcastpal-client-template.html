@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- ============================================================
+     BROADCASTPAL CLIENT TEMPLATE
+     A Peak Platforms Product — broadcastpal.fun
+     ============================================================
+     SETUP: Edit the CONFIG block below. That's it.
+     Then paste the PaymeGPT bot code where indicated.
+     ============================================================ -->
+
+<script>
+const CONFIG = {
+  // ── REQUIRED ──────────────────────────────────────────────
+  teamName:        "Southlake Carroll Dragons",      // Full team/org name
+  tagline:         "Dragon Nation — On Air 24/7",    // Short tagline
+  primaryColor:    "#003087",                        // Main brand color
+  secondaryColor:  "#FFD700",                        // Accent color
+  logoText:        "🐉 DRAGONS",                     // Logo text (or use logoUrl below)
+  logoUrl:         "",                               // Optional: path to logo image
+
+  // ── RADIO ─────────────────────────────────────────────────
+  azuracastEmbed:  "https://stream.xsen.fun/public/sooners/embed?theme=dark", // AzuraCast embed URL
+
+  // ── NAVIGATION ────────────────────────────────────────────
+  showSchedule:    true,                             // Show schedule section
+  showInfo:        true,                             // Show info section
+  showBot:         true,                             // Show chatbot section
+
+  // ── SCHEDULE ──────────────────────────────────────────────
+  scheduleTitle:   "2025 Season Schedule",
+  scheduleItems: [
+    { date: "Aug 29", opponent: "vs. Euless Trinity",   location: "Home", time: "7:00 PM" },
+    { date: "Sep 5",  opponent: "@ Keller",             location: "Away", time: "7:00 PM" },
+    { date: "Sep 12", opponent: "vs. Denton Guyer",     location: "Home", time: "7:00 PM" },
+    { date: "Sep 19", opponent: "@ Flower Mound",       location: "Away", time: "7:00 PM" },
+    { date: "Sep 26", opponent: "vs. Byron Nelson",     location: "Home", time: "7:00 PM" },
+    { date: "Oct 3",  opponent: "@ Hebron",             location: "Away", time: "7:00 PM" },
+    { date: "Oct 10", opponent: "vs. Marcus",           location: "Home", time: "7:00 PM" },
+  ],
+
+  // ── INFO SECTION ──────────────────────────────────────────
+  infoTitle:       "Dragon Nation Info",
+  infoItems: [
+    {
+      title: "About Dragon Athletics",
+      body:  "Southlake Carroll Dragon Athletics competes in the UIL 6A classification. The Dragons are one of the most decorated high school programs in Texas history with multiple state championships across football, basketball, and baseball."
+    },
+    {
+      title: "Stadium & Facilities",
+      body:  "Dragon Stadium seats 11,000 fans and is located at 800 N. White Chapel Blvd, Southlake, TX. Gates open 90 minutes before kickoff. Parking is free in all lots."
+    },
+    {
+      title: "Spirit & Tickets",
+      body:  "Season tickets are available through the Carroll ISD athletics office. Dragon spirit wear is available at the school store and online at carrolldragons.com."
+    }
+  ],
+
+  // ── FOOTER ────────────────────────────────────────────────
+  footerText:      "Powered by BroadcastPal · A Peak Platforms Product",
+  footerUrl:       "https://broadcastpal.fun"
+}
+</script>
+
+<title id="page-title">Loading...</title>
+<meta name="description" id="page-desc" content="">
+
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --primary: #003087;
+  --secondary: #FFD700;
+  --ink: #0a0a0a;
+  --paper: #ffffff;
+  --surface: #f5f5f5;
+  --muted: #888;
+  --border: #e5e5e5;
+  --radius: 12px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--surface);
+  color: var(--ink);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+}
+
+/* ─── Nav ─── */
+nav {
+  background: var(--primary);
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: 60px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+}
+
+.nav-logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  letter-spacing: 3px;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-logo img {
+  height: 36px;
+  width: auto;
+  object-fit: contain;
+}
+
+.live-badge {
+  background: #ff3d00;
+  color: white;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.nav-links {
+  display: flex;
+  gap: 24px;
+  list-style: none;
+}
+
+.nav-links a {
+  color: rgba(255,255,255,0.75);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  transition: color 0.2s;
+}
+
+.nav-links a:hover { color: white; }
+
+/* ─── Hero Banner ─── */
+.hero {
+  background: var(--primary);
+  color: white;
+  padding: 48px 24px 56px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, rgba(255,255,255,0.05) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(48px, 8vw, 80px);
+  letter-spacing: 4px;
+  line-height: 1;
+  margin-bottom: 12px;
+  position: relative;
+}
+
+.hero-tagline {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 3px;
+  color: var(--secondary);
+  text-transform: uppercase;
+  position: relative;
+}
+
+/* ─── Main Layout ─── */
+.main {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 32px 24px 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* ─── Cards ─── */
+.card {
+  background: var(--paper);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+.card-header {
+  background: var(--primary);
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.card-header h2 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 18px;
+  letter-spacing: 2px;
+  color: white;
+}
+
+.card-header .header-icon {
+  font-size: 18px;
+}
+
+.card-body {
+  padding: 24px;
+}
+
+/* ─── Radio Player ─── */
+.radio-card .azuracast-embed {
+  width: 100%;
+  border: none;
+  border-radius: 8px;
+  overflow: hidden;
+  display: block;
+}
+
+/* ─── Schedule ─── */
+.schedule-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.schedule-table tr {
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s;
+}
+
+.schedule-table tr:last-child { border-bottom: none; }
+.schedule-table tr:hover { background: var(--surface); }
+
+.schedule-table td {
+  padding: 12px 8px;
+  font-size: 14px;
+  vertical-align: middle;
+}
+
+.schedule-table .td-date {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+  width: 60px;
+}
+
+.schedule-table .td-opponent {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.schedule-table .td-time {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  color: var(--muted);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.location-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.location-home {
+  background: rgba(0,48,135,0.1);
+  color: var(--primary);
+}
+
+.location-away {
+  background: rgba(0,0,0,0.06);
+  color: var(--muted);
+}
+
+/* ─── Info Section ─── */
+.info-items {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.info-item h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--primary);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.info-item h3::before {
+  content: '';
+  width: 3px;
+  height: 16px;
+  background: var(--secondary);
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.info-item p {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #444;
+}
+
+/* ─── Bot Section ─── */
+.bot-placeholder {
+  background: var(--surface);
+  border: 2px dashed var(--border);
+  border-radius: 8px;
+  padding: 32px;
+  text-align: center;
+  color: var(--muted);
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+
+/* ─── Footer ─── */
+footer {
+  text-align: center;
+  padding: 24px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 1px;
+}
+
+footer a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+footer a:hover { text-decoration: underline; }
+
+/* ─── Responsive ─── */
+@media (max-width: 600px) {
+  .nav-links { display: none; }
+  .schedule-table .td-time { display: none; }
+  .main { padding: 20px 16px 48px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ─── Nav ─── -->
+<nav id="site-nav">
+  <div class="nav-logo" id="nav-logo">Loading...</div>
+  <ul class="nav-links" id="nav-links"></ul>
+</nav>
+
+<!-- ─── Hero ─── -->
+<div class="hero">
+  <div class="hero-name" id="hero-name"></div>
+  <div class="hero-tagline" id="hero-tagline"></div>
+</div>
+
+<!-- ─── Main Content ─── -->
+<main class="main">
+
+  <!-- Radio Player -->
+  <div class="card radio-card" id="radio-card">
+    <div class="card-header">
+      <span class="header-icon">📻</span>
+      <h2>LIVE RADIO</h2>
+      <span class="live-badge">● LIVE</span>
+    </div>
+    <div class="card-body">
+      <iframe id="azuracast-frame" class="azuracast-embed" height="150" frameborder="0" allowtransparency="true" allow="autoplay"></iframe>
+    </div>
+  </div>
+
+  <!-- Schedule -->
+  <div class="card" id="schedule-card">
+    <div class="card-header">
+      <span class="header-icon">📅</span>
+      <h2 id="schedule-heading"></h2>
+    </div>
+    <div class="card-body">
+      <table class="schedule-table" id="schedule-table"></table>
+    </div>
+  </div>
+
+  <!-- Info -->
+  <div class="card" id="info-card">
+    <div class="card-header">
+      <span class="header-icon">ℹ️</span>
+      <h2 id="info-heading"></h2>
+    </div>
+    <div class="card-body">
+      <div class="info-items" id="info-items"></div>
+    </div>
+  </div>
+
+  <!-- AI Chatbot -->
+  <div class="card" id="bot-card">
+    <div class="card-header">
+      <span class="header-icon">🤖</span>
+      <h2>ASK THE BOT</h2>
+    </div>
+    <div class="card-body" id="bot-body">
+      <!-- ============================================================
+           PASTE PAYMEGPT BOT EMBED CODE HERE
+           Delete the placeholder div below and paste your code
+           ============================================================ -->
+      <div class="bot-placeholder">
+        PAYMEGPT BOT CODE GOES HERE
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ─── Footer ─── -->
+<footer id="site-footer"></footer>
+
+<!-- ─── Init ─── -->
+<script>
+(function() {
+  const C = CONFIG;
+
+  // CSS variables
+  document.documentElement.style.setProperty('--primary', C.primaryColor);
+  document.documentElement.style.setProperty('--secondary', C.secondaryColor);
+
+  // Page title & meta
+  document.getElementById('page-title').textContent = C.teamName + ' — BroadcastPal';
+  document.getElementById('page-desc').setAttribute('content', C.tagline);
+
+  // Nav logo
+  const navLogo = document.getElementById('nav-logo');
+  if (C.logoUrl) {
+    navLogo.innerHTML = `<img src="${C.logoUrl}" alt="${C.teamName} logo"> <span>${C.teamName.toUpperCase()}</span>`;
+  } else {
+    navLogo.textContent = C.logoText || C.teamName.toUpperCase();
+  }
+
+  // Nav links
+  const navLinks = document.getElementById('nav-links');
+  const links = [
+    { label: 'Radio', id: 'radio-card', show: true },
+    { label: 'Schedule', id: 'schedule-card', show: C.showSchedule },
+    { label: 'Info', id: 'info-card', show: C.showInfo },
+    { label: 'Ask the Bot', id: 'bot-card', show: C.showBot },
+  ];
+  links.filter(l => l.show).forEach(l => {
+    const li = document.createElement('li');
+    li.innerHTML = `<a href="#${l.id}">${l.label}</a>`;
+    navLinks.appendChild(li);
+  });
+
+  // Hero
+  document.getElementById('hero-name').textContent = C.teamName.toUpperCase();
+  document.getElementById('hero-tagline').textContent = C.tagline;
+
+  // AzuraCast embed
+  document.getElementById('azuracast-frame').src = C.azuracastEmbed;
+
+  // Schedule
+  if (C.showSchedule && C.scheduleItems.length) {
+    document.getElementById('schedule-heading').textContent = C.scheduleTitle;
+    const table = document.getElementById('schedule-table');
+    C.scheduleItems.forEach(item => {
+      const locationClass = item.location === 'Home' ? 'location-home' : 'location-away';
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td class="td-date">${item.date}</td>
+        <td class="td-opponent">
+          ${item.opponent}
+          <span class="location-badge ${locationClass}">${item.location}</span>
+        </td>
+        <td class="td-time">${item.time}</td>
+      `;
+      table.appendChild(row);
+    });
+  } else {
+    document.getElementById('schedule-card').style.display = 'none';
+  }
+
+  // Info
+  if (C.showInfo && C.infoItems.length) {
+    document.getElementById('info-heading').textContent = C.infoTitle;
+    const infoContainer = document.getElementById('info-items');
+    C.infoItems.forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'info-item';
+      div.innerHTML = `<h3>${item.title}</h3><p>${item.body}</p>`;
+      infoContainer.appendChild(div);
+    });
+  } else {
+    document.getElementById('info-card').style.display = 'none';
+  }
+
+  // Bot visibility
+  if (!C.showBot) {
+    document.getElementById('bot-card').style.display = 'none';
+  }
+
+  // Footer
+  document.getElementById('site-footer').innerHTML =
+    `<a href="${C.footerUrl}" target="_blank">${C.footerText}</a>`;
+
+})();
+</script>
+
+</body>
+</html>
