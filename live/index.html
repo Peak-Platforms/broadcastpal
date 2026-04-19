@@ -313,10 +313,12 @@
   </div>
 </div>
 
+<script src="config.js"></script>
 <script>
 // ── CONFIG ────────────────────────────────────────────────────────────────────
 // CHANGED: Removed AntMedia. All video streams now served from nginx on Railway.
 // Update NGINX_HLS_BASE to your actual nginx Railway domain.
+// config.js loaded above
 const ORCHESTRATOR   = window.XSEN_ORCHESTRATOR_URL  || 'https://broadcastpal-server-production.up.railway.app';
 const NGINX_HLS_BASE = window.XSEN_NGINX_HLS_BASE    || 'https://YOUR_NGINX_RAILWAY_DOMAIN';
 const AZURACAST_BASE = window.XSEN_AZURACAST_URL      || 'https://stream.xsen.fun';
@@ -329,8 +331,8 @@ function streamHlsUrl(streamKey)     { return `${NGINX_HLS_BASE}/hls/${streamKey
 
 const SCHOOLS = {
   ou:    { badge: 'OU',  cls: 'badge-ou',    name: 'Oklahoma Sooners',       radio: '/listen/xsen_sooners/radio.mp3', station: 'Sooners Radio Network' },
-  osu:   { badge: 'OSU', cls: 'badge-osu',   name: 'Oklahoma State Cowboys', radio: '/listen/xsen_sooners/radio.mp3', station: 'Cowboys Radio Network' },
-  texas: { badge: 'TX',  cls: 'badge-texas', name: 'Texas Longhorns',        radio: '/listen/xsen_sooners/radio.mp3',   station: 'Longhorn Radio Network' },
+  osu:   { badge: 'OSU', cls: 'badge-osu',   name: 'Oklahoma State Cowboys', radio: '/listen/xsen_okstate/radio.mp3', station: 'Cowboys Radio Network' },
+  texas: { badge: 'TX',  cls: 'badge-texas', name: 'Texas Longhorns',        radio: '/listen/xsen_texas/radio.mp3',   station: 'Longhorn Radio Network' },
 };
 
 let state = {
