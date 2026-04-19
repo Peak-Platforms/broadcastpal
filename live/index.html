@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XSEN Live — Fan Viewer</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500&display=swap');
+
+  :root {
+    --bg: #0a0a0a;
+    --bg2: #141414;
+    --bg3: #1c1c1c;
+    --border: rgba(255,255,255,0.08);
+    --border-active: rgba(255,255,255,0.25);
+    --text: #f0f0f0;
+    --text2: #888;
+    --text3: #555;
+    --accent: #e8302a;
+    --accent2: #ff6b35;
+    --live: #22c55e;
+    --radius: 6px;
+    --font-head: 'Barlow Condensed', sans-serif;
+    --font-body: 'Barlow', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font-body); min-height: 100vh; }
+
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 24px; height: 52px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .logo {
+    font-family: var(--font-head); font-weight: 900; font-size: 22px;
+    letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .logo span { color: var(--accent); }
+  .live-badge {
+    display: flex; align-items: center; gap: 6px;
+    font-family: var(--font-head); font-size: 12px; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--live);
+  }
+  .live-dot {
+    width: 7px; height: 7px; border-radius: 50%; background: var(--live);
+    animation: pulse 1.8s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:.5; transform:scale(.8); } }
+
+  .main { display: grid; grid-template-columns: 1fr 320px; gap: 0; height: calc(100vh - 52px); }
+
+  /* ── Left: video + game selector ── */
+  .player-side { display: flex; flex-direction: column; border-right: 1px solid var(--border); }
+
+  .video-wrap {
+    position: relative; background: #000; flex-shrink: 0;
+    aspect-ratio: 16/9; width: 100%;
+  }
+  .video-wrap video { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .video-placeholder {
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 12px;
+    background: #050505;
+  }
+  .play-icon {
+    width: 64px; height: 64px; border-radius: 50%;
+    border: 2px solid var(--border-active);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: border-color .2s, background .2s;
+  }
+  .play-icon:hover { border-color: var(--accent); background: rgba(232,48,42,.1); }
+  .play-icon svg { width: 24px; height: 24px; fill: var(--text); margin-left: 4px; }
+  .no-stream-msg { font-family: var(--font-head); font-size: 14px; font-weight: 600; letter-spacing:.05em; color: var(--text2); text-transform: uppercase; }
+
+  .video-overlay {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 12px 16px;
+    background: linear-gradient(transparent, rgba(0,0,0,.85));
+    display: flex; align-items: flex-end; justify-content: space-between;
+  }
+  .stream-label { font-family: var(--font-head); font-size: 16px; font-weight: 700; letter-spacing:.05em; text-transform: uppercase; }
+  .stream-meta { font-size: 12px; color: var(--text2); margin-top: 2px; }
+  .live-pill {
+    display: flex; align-items: center; gap: 5px;
+    background: var(--accent); color: #fff;
+    font-family: var(--font-head); font-size: 11px; font-weight: 700; letter-spacing:.1em;
+    padding: 4px 10px; border-radius: 3px; text-transform: uppercase;
+  }
+
+  /* ── Game selector tabs ── */
+  .game-tabs {
+    flex: 1; overflow-y: auto;
+    padding: 16px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .game-tabs h2 {
+    font-family: var(--font-head); font-size: 11px; font-weight: 700;
+    letter-spacing: .12em; text-transform: uppercase; color: var(--text3);
+    margin-bottom: 4px;
+  }
+
+  .game-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 12px 14px;
+    cursor: pointer; transition: border-color .15s, background .15s;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .game-card:hover { background: var(--bg3); border-color: var(--border-active); }
+  .game-card.active { border-color: var(--accent); background: rgba(232,48,42,.06); }
+
+  .school-badge {
+    width: 40px; height: 40px; border-radius: 4px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-head); font-size: 14px; font-weight: 900;
+    text-transform: uppercase; letter-spacing: .02em;
+  }
+  .badge-ou    { background: #841617; color: #fcd116; }
+  .badge-osu   { background: #ff6600; color: #000; }
+  .badge-texas { background: #bf5700; color: #fff; }
+  .badge-none  { background: var(--bg3); color: var(--text2); }
+
+  .game-info { flex: 1; min-width: 0; }
+  .game-matchup {
+    font-family: var(--font-head); font-size: 15px; font-weight: 700;
+    letter-spacing: .03em; text-transform: uppercase;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .game-detail { font-size: 12px; color: var(--text2); margin-top: 2px; }
+  .game-status {
+    font-family: var(--font-head); font-size: 11px; font-weight: 700;
+    letter-spacing: .08em; text-transform: uppercase; flex-shrink: 0;
+  }
+  .status-live  { color: var(--live); }
+  .status-soon  { color: var(--text2); }
+  .status-ended { color: var(--text3); }
+
+  /* ── Right: feed switcher + radio ── */
+  .sidebar { display: flex; flex-direction: column; overflow: hidden; }
+
+  .sidebar-section { padding: 16px; border-bottom: 1px solid var(--border); }
+  .sidebar-title {
+    font-family: var(--font-head); font-size: 11px; font-weight: 700;
+    letter-spacing: .12em; text-transform: uppercase; color: var(--text3);
+    margin-bottom: 10px;
+  }
+
+  .feed-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .feed-btn {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 10px 8px;
+    cursor: pointer; transition: border-color .15s, background .15s;
+    text-align: left;
+  }
+  .feed-btn:hover { background: var(--bg3); border-color: var(--border-active); }
+  .feed-btn.active { border-color: var(--accent); background: rgba(232,48,42,.06); }
+  .feed-btn.multiview { grid-column: 1 / -1; }
+  .feed-name {
+    font-family: var(--font-head); font-size: 13px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .04em;
+  }
+  .feed-detail { font-size: 11px; color: var(--text2); margin-top: 2px; }
+  .feed-live-dot {
+    display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--live); margin-right: 5px;
+    animation: pulse 1.8s ease-in-out infinite;
+  }
+
+  /* ── Score bar ── */
+  .score-bar {
+    padding: 12px 16px;
+    background: var(--bg2); border-bottom: 1px solid var(--border);
+  }
+  .score-row { display: flex; align-items: center; justify-content: space-between; }
+  .score-team { font-family: var(--font-head); font-size: 15px; font-weight: 700; letter-spacing:.04em; text-transform: uppercase; }
+  .score-num  { font-family: var(--font-head); font-size: 22px; font-weight: 900; }
+  .score-mid  { font-family: var(--font-head); font-size: 11px; font-weight: 600; letter-spacing:.08em; text-transform: uppercase; color: var(--text2); text-align: center; }
+  .score-clock { font-size: 11px; color: var(--text2); text-align: center; margin-top: 2px; }
+
+  /* ── Radio player ── */
+  .radio-player {
+    padding: 14px 16px;
+    background: var(--bg2); border-bottom: 1px solid var(--border);
+  }
+  .radio-row { display: flex; align-items: center; gap: 10px; }
+  .radio-btn {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--accent); border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: background .15s;
+  }
+  .radio-btn:hover { background: var(--accent2); }
+  .radio-btn svg { width: 14px; height: 14px; fill: #fff; margin-left: 2px; }
+  .radio-info { flex: 1; min-width: 0; }
+  .radio-name { font-family: var(--font-head); font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing:.04em; }
+  .radio-station { font-size: 11px; color: var(--text2); margin-top: 1px; }
+  audio { display: none; }
+
+  /* ── Stats panel ── */
+  .stats-scroll { flex: 1; overflow-y: auto; padding: 16px; }
+  .stat-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 0; border-bottom: 1px solid var(--border);
+  }
+  .stat-row:last-child { border-bottom: none; }
+  .stat-label { font-size: 13px; color: var(--text2); }
+  .stat-val { font-family: var(--font-head); font-size: 14px; font-weight: 700; letter-spacing:.03em; }
+
+  /* ── Empty state ── */
+  .empty { padding: 32px 16px; text-align: center; color: var(--text3); }
+  .empty p { font-family: var(--font-head); font-size: 13px; font-weight: 600; letter-spacing:.08em; text-transform: uppercase; }
+
+  @media (max-width: 800px) {
+    .main { grid-template-columns: 1fr; grid-template-rows: auto 1fr; height: auto; }
+    .player-side { height: auto; }
+    .sidebar { max-height: 480px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">X<span>S</span>EN <span style="color:var(--text2);font-weight:400;font-size:16px;letter-spacing:0">Live</span></div>
+  <div class="live-badge"><div class="live-dot"></div> On Air</div>
+</header>
+
+<div class="main">
+
+  <!-- Left: video player + game list -->
+  <div class="player-side">
+    <div class="video-wrap" id="videoWrap">
+      <div class="video-placeholder" id="placeholder">
+        <div class="play-icon" onclick="playSelected()">
+          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </div>
+        <div class="no-stream-msg" id="placeholderMsg">Select a game to watch</div>
+      </div>
+      <video id="videoEl" controls playsinline style="display:none"></video>
+      <div class="video-overlay" id="videoOverlay" style="display:none">
+        <div>
+          <div class="stream-label" id="overlayLabel">—</div>
+          <div class="stream-meta" id="overlayMeta">—</div>
+        </div>
+        <div class="live-pill"><div class="live-dot"></div> Live</div>
+      </div>
+    </div>
+
+    <div class="game-tabs">
+      <h2>Games</h2>
+      <div id="gameList">
+        <div class="empty"><p>Loading games...</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right sidebar: feeds + score + radio + stats -->
+  <div class="sidebar">
+
+    <!-- Feed switcher -->
+    <div class="sidebar-section">
+      <div class="sidebar-title">POV Feeds</div>
+      <div class="feed-grid" id="feedGrid">
+        <div class="empty" style="grid-column:1/-1;padding:8px 0"><p style="font-size:11px">Select a game</p></div>
+      </div>
+    </div>
+
+    <!-- Score bar -->
+    <div class="score-bar" id="scoreBar" style="display:none">
+      <div class="score-row">
+        <div>
+          <div class="score-team" id="awayTeam">—</div>
+        </div>
+        <div style="text-align:center">
+          <div class="score-mid" id="scorePeriod">—</div>
+          <div style="display:flex;gap:16px;align-items:center;margin-top:4px">
+            <div class="score-num" id="awayScore">0</div>
+            <div style="color:var(--text3);font-family:var(--font-head)">–</div>
+            <div class="score-num" id="homeScore">0</div>
+          </div>
+          <div class="score-clock" id="scoreClock"></div>
+        </div>
+        <div style="text-align:right">
+          <div class="score-team" id="homeTeam">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Radio -->
+    <div class="radio-player" id="radioSection" style="display:none">
+      <div class="sidebar-title">Radio</div>
+      <div class="radio-row">
+        <button class="radio-btn" onclick="toggleRadio()" id="radioBtn">
+          <svg viewBox="0 0 24 24" id="radioIcon"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+        <div class="radio-info">
+          <div class="radio-name" id="radioName">—</div>
+          <div class="radio-station" id="radioStation">—</div>
+        </div>
+      </div>
+      <audio id="radioEl"></audio>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-scroll">
+      <div class="sidebar-title" style="padding:0 0 10px">Stream Info</div>
+      <div id="statsPanel">
+        <div class="empty"><p style="font-size:11px">No active streams</p></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── CONFIG ────────────────────────────────────────────────────────────────────
+// CHANGED: Removed AntMedia. All video streams now served from nginx on Railway.
+// Update NGINX_HLS_BASE to your actual nginx Railway domain.
+const ORCHESTRATOR   = window.XSEN_ORCHESTRATOR_URL  || 'https://broadcastpal-server-production.up.railway.app';
+const NGINX_HLS_BASE = window.XSEN_NGINX_HLS_BASE    || 'https://YOUR_NGINX_RAILWAY_DOMAIN';
+const AZURACAST_BASE = window.XSEN_AZURACAST_URL      || 'https://stream.xsen.fun';
+
+// CHANGED: HLS URL builders pointing to nginx instead of AntMedia
+// Composite (multiview) output: /hls/composite/output.m3u8
+// Individual stream:            /hls/{streamKey}/index.m3u8
+function compositeHlsUrl()           { return `${NGINX_HLS_BASE}/hls/composite/output.m3u8`; }
+function streamHlsUrl(streamKey)     { return `${NGINX_HLS_BASE}/hls/${streamKey}/index.m3u8`; }
+
+const SCHOOLS = {
+  ou:    { badge: 'OU',  cls: 'badge-ou',    name: 'Oklahoma Sooners',       radio: '/listen/xsen_sooners/radio.mp3', station: 'Sooners Radio Network' },
+  osu:   { badge: 'OSU', cls: 'badge-osu',   name: 'Oklahoma State Cowboys', radio: '/listen/xsen_sooners/radio.mp3', station: 'Cowboys Radio Network' },
+  texas: { badge: 'TX',  cls: 'badge-texas', name: 'Texas Longhorns',        radio: '/listen/xsen_sooners/radio.mp3',   station: 'Longhorn Radio Network' },
+};
+
+let state = {
+  games: [],
+  selectedGame: null,
+  selectedStream: null,   // null = multiview composite
+  radioPlaying: false,
+  hlsInstance: null,      // CHANGED: track hls.js instance for cleanup
+  scoreInterval: null,
+};
+
+// ── Boot ──────────────────────────────────────────────────────────────────────
+
+async function boot() {
+  await loadGames();
+  setInterval(loadGames, 30000);
+}
+
+async function loadGames() {
+  try {
+    const r = await fetch(`${ORCHESTRATOR}/games`);
+    const data = await r.json();
+    state.games = data.games ?? [];
+    renderGameList();
+    if (state.selectedGame) {
+      const updated = state.games.find(g => g.id === state.selectedGame.id);
+      if (updated) { state.selectedGame = updated; renderSidebar(); }
+    }
+  } catch {
+    document.getElementById('gameList').innerHTML =
+      '<div class="empty"><p>Could not load games</p></div>';
+  }
+}
+
+// ── Game list ─────────────────────────────────────────────────────────────────
+
+function renderGameList() {
+  const el = document.getElementById('gameList');
+  if (!state.games.length) {
+    el.innerHTML = '<div class="empty"><p>No games scheduled</p></div>';
+    return;
+  }
+  el.innerHTML = state.games.map(g => {
+    const school = SCHOOLS[g.school_id] ?? { badge: g.school_id?.toUpperCase() ?? '?', cls: 'badge-none', name: g.school_name };
+    const isActive = state.selectedGame?.id === g.id;
+    const statusCls = g.status === 'live' ? 'status-live' : g.status === 'ended' ? 'status-ended' : 'status-soon';
+    const statusLabel = g.status === 'live' ? '● Live' : g.status === 'ended' ? 'Final' : 'Upcoming';
+    const streamCount = (g.streams ?? []).filter(s => s.status === 'active').length;
+    return `
+      <div class="game-card ${isActive ? 'active' : ''}" onclick="selectGame('${g.id}')">
+        <div class="school-badge ${school.cls}">${school.badge}</div>
+        <div class="game-info">
+          <div class="game-matchup">${school.name} vs ${g.opponent}</div>
+          <div class="game-detail">${g.sport} · ${g.venue ?? ''} · ${streamCount} feed${streamCount !== 1 ? 's' : ''}</div>
+        </div>
+        <div class="game-status ${statusCls}">${statusLabel}</div>
+      </div>`;
+  }).join('');
+}
+
+// ── Select game ───────────────────────────────────────────────────────────────
+
+async function selectGame(gameId) {
+  state.selectedGame = state.games.find(g => g.id === gameId);
+  if (!state.selectedGame) return;
+  state.selectedStream = null;  // default to multiview composite
+  renderGameList();
+  renderSidebar();
+  loadScore();
+  clearInterval(state.scoreInterval);
+  state.scoreInterval = setInterval(loadScore, 45000);
+}
+
+function renderSidebar() {
+  const game = state.selectedGame;
+  if (!game) return;
+  const school = SCHOOLS[game.school_id] ?? { radio: '', station: '' };
+  const streams = (game.streams ?? []).filter(s => s.status === 'active');
+  renderFeedGrid(streams);
+  renderScoreBar(game);
+  renderRadio(game, school);
+  renderStats(streams);
+}
+
+// ── Feed grid ─────────────────────────────────────────────────────────────────
+
+function renderFeedGrid(streams) {
+  const el = document.getElementById('feedGrid');
+  if (!streams.length) {
+    el.innerHTML = '<div class="empty" style="grid-column:1/-1;padding:8px 0"><p style="font-size:11px">No active feeds</p></div>';
+    updateVideoPlayer(null);
+    return;
+  }
+
+  const multiActive = state.selectedStream === null;
+  let html = `
+    <div class="feed-btn multiview ${multiActive ? 'active' : ''}" onclick="selectFeed(null)">
+      <div class="feed-name"><span class="feed-live-dot"></span>Multiview</div>
+      <div class="feed-detail">All ${streams.length} feeds composed</div>
+    </div>`;
+
+  streams.forEach((s, i) => {
+    const isActive = state.selectedStream === s.stream_key;
+    html += `
+      <div class="feed-btn ${isActive ? 'active' : ''}" onclick="selectFeed('${s.stream_key}')">
+        <div class="feed-name"><span class="feed-live-dot"></span>${s.label ?? `Feed ${i+1}`}</div>
+        <div class="feed-detail">${s.section ?? 'Fan POV'}</div>
+      </div>`;
+  });
+
+  el.innerHTML = html;
+  updateVideoPlayer(state.selectedStream);
+}
+
+function selectFeed(streamKey) {
+  state.selectedStream = streamKey;
+  const game = state.selectedGame;
+  if (!game) return;
+  renderFeedGrid((game.streams ?? []).filter(s => s.status === 'active'));
+  updateVideoPlayer(streamKey);
+}
+
+// ── Video player — CHANGED: nginx HLS instead of AntMedia ────────────────────
+
+function updateVideoPlayer(streamKey) {
+  const game      = state.selectedGame;
+  const videoEl   = document.getElementById('videoEl');
+  const placeholder = document.getElementById('placeholder');
+  const overlay   = document.getElementById('videoOverlay');
+  const overlayLabel = document.getElementById('overlayLabel');
+  const overlayMeta  = document.getElementById('overlayMeta');
+
+  // CHANGED: build HLS URL from nginx, not AntMedia
+  let hlsUrl = null;
+  let label  = 'Multiview';
+  let meta   = game ? `${game.school_name} vs ${game.opponent}` : '';
+
+  if (streamKey === null && game) {
+    // Multiview — composite output from FFmpeg → nginx
+    hlsUrl = compositeHlsUrl();
+    label  = 'Multiview — all feeds';
+  } else if (streamKey) {
+    const stream = (game?.streams ?? []).find(s => s.stream_key === streamKey);
+    // Prefer hls_url stored in Supabase, fall back to nginx pattern
+    hlsUrl = stream?.hls_url || streamHlsUrl(streamKey);
+    label  = stream?.label ?? `Feed ${streamKey}`;
+    meta   = stream?.section ? `Section ${stream.section}` : 'Fan POV';
+  }
+
+  if (!hlsUrl) {
+    placeholder.style.display = 'flex';
+    videoEl.style.display = 'none';
+    overlay.style.display = 'none';
+    document.getElementById('placeholderMsg').textContent = 'No stream available';
+    return;
+  }
+
+  overlayLabel.textContent = label;
+  overlayMeta.textContent  = meta;
+
+  // CHANGED: destroy previous hls.js instance before creating a new one
+  if (state.hlsInstance) {
+    state.hlsInstance.destroy();
+    state.hlsInstance = null;
+  }
+
+  if (videoEl.canPlayType('application/vnd.apple.mpegurl')) {
+    // Native HLS — Safari / iOS
+    videoEl.src = hlsUrl;
+    videoEl.play().catch(() => {});
+  } else if (window.Hls && Hls.isSupported()) {
+    const hls = new Hls({ lowLatencyMode: true });
+    hls.loadSource(hlsUrl);
+    hls.attachMedia(videoEl);
+    hls.on(Hls.Events.MANIFEST_PARSED, () => videoEl.play().catch(() => {}));
+    state.hlsInstance = hls;
+  } else {
+    placeholder.style.display = 'flex';
+    document.getElementById('placeholderMsg').textContent = 'HLS not supported in this browser';
+    return;
+  }
+
+  placeholder.style.display = 'none';
+  videoEl.style.display = 'block';
+  overlay.style.display = 'flex';
+}
+
+function playSelected() {
+  if (state.selectedGame) updateVideoPlayer(state.selectedStream);
+}
+
+// ── Score bar ─────────────────────────────────────────────────────────────────
+
+function renderScoreBar(game) {
+  document.getElementById('scoreBar').style.display = 'block';
+  document.getElementById('homeTeam').textContent = game.school_name?.split(' ').pop() ?? '—';
+  document.getElementById('awayTeam').textContent = game.opponent ?? '—';
+  document.getElementById('scorePeriod').textContent =
+    game.status === 'live' ? 'Live' : game.status === 'ended' ? 'Final' : 'Upcoming';
+  document.getElementById('homeScore').textContent = '0';
+  document.getElementById('awayScore').textContent = '0';
+}
+
+async function loadScore() {
+  const game = state.selectedGame;
+  if (!game?.espn_team_id) return;
+  try {
+    const r = await fetch('https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?groups=80&limit=100');
+    const data = await r.json();
+    const event = (data.events ?? []).find(e =>
+      e.competitions?.[0]?.competitors?.some(c => c.team?.id === game.espn_team_id)
+    );
+    if (!event) return;
+    const comp = event.competitions[0];
+    const home = comp.competitors.find(c => c.homeAway === 'home');
+    const away = comp.competitors.find(c => c.homeAway === 'away');
+    const status = event.status;
+    document.getElementById('homeScore').textContent  = home?.score ?? '0';
+    document.getElementById('awayScore').textContent  = away?.score ?? '0';
+    document.getElementById('homeTeam').textContent   = home?.team?.abbreviation ?? '—';
+    document.getElementById('awayTeam').textContent   = away?.team?.abbreviation ?? '—';
+    const period = status.period ?? 0;
+    document.getElementById('scorePeriod').textContent =
+      status.type?.id === '3' ? 'Final' :
+      status.type?.id === '2' ? (period <= 2 ? `H${period}` : `Q${period}`) : 'Upcoming';
+    document.getElementById('scoreClock').textContent = status.displayClock ?? '';
+  } catch {}
+}
+
+// ── Radio — CHANGED: AzuraCast mount paths updated to match existing streams ──
+
+function renderRadio(game, school) {
+  const section = document.getElementById('radioSection');
+  section.style.display = 'block';
+  document.getElementById('radioName').textContent    = `${game.school_name} Radio`;
+  document.getElementById('radioStation').textContent = school.station ?? 'Radio';
+  const audioEl = document.getElementById('radioEl');
+  audioEl.src = `${AZURACAST_BASE}${school.radio}`;
+}
+
+function toggleRadio() {
+  const audio = document.getElementById('radioEl');
+  const icon  = document.getElementById('radioIcon');
+  state.radioPlaying = !state.radioPlaying;
+  if (state.radioPlaying) {
+    audio.play();
+    icon.innerHTML = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
+  } else {
+    audio.pause();
+    icon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+  }
+}
+
+// ── Stats panel ───────────────────────────────────────────────────────────────
+
+function renderStats(streams) {
+  const el = document.getElementById('statsPanel');
+  if (!streams.length) {
+    el.innerHTML = '<div class="empty"><p style="font-size:11px">No active streams</p></div>';
+    return;
+  }
+  el.innerHTML = `
+    <div class="stat-row"><span class="stat-label">Active feeds</span><span class="stat-val">${streams.length}</span></div>
+    <div class="stat-row"><span class="stat-label">Watching</span><span class="stat-val">${state.selectedStream === null ? 'Multiview' : streams.find(s => s.stream_key === state.selectedStream)?.label ?? '—'}</span></div>
+    <div class="stat-row"><span class="stat-label">Composite URL</span><span class="stat-val" style="font-size:10px;word-break:break-all;">/hls/composite/output.m3u8</span></div>
+    ${streams.map((s, i) => `
+    <div class="stat-row">
+      <span class="stat-label">Feed ${i+1}</span>
+      <span class="stat-val" style="font-size:12px">${s.label ?? s.stream_key.slice(0, 8)}</span>
+    </div>`).join('')}
+  `;
+}
+
+// ── Boot ──────────────────────────────────────────────────────────────────────
+boot();
+</script>
+
+<!-- hls.js for non-Safari browsers -->
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.7/dist/hls.min.js"></script>
+
+</body>
+</html>
