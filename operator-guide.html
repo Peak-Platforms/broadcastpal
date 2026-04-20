@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BroadcastPal — Game Day Operator Guide</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500&display=swap');
+  :root {
+    --bg:#0a0a0a;--bg2:#141414;--bg3:#1c1c1c;
+    --border:rgba(255,255,255,0.08);
+    --text:#f0f0f0;--text2:#888;--text3:#555;
+    --accent:#e8302a;--live:#22c55e;
+    --font-head:'Barlow Condensed',sans-serif;
+    --font-body:'Barlow',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:var(--font-body);padding:40px 24px;max-width:860px;margin:0 auto;line-height:1.7;}
+  h1{font-family:var(--font-head);font-size:42px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px;}
+  h1 span{color:var(--accent);}
+  .subtitle{font-size:15px;color:var(--text2);margin-bottom:48px;}
+  h2{font-family:var(--font-head);font-size:22px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin:48px 0 16px;display:flex;align-items:center;gap:12px;}
+  h2 .step-num{background:var(--accent);color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;flex-shrink:0;}
+  h3{font-family:var(--font-head);font-size:16px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--text2);margin:20px 0 8px;}
+  p{margin-bottom:12px;font-size:15px;}
+  .card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:20px 24px;margin-bottom:16px;}
+  .card-title{font-family:var(--font-head);font-size:14px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text2);margin-bottom:12px;}
+  code{background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:2px 8px;font-family:monospace;font-size:13px;color:#e8b4b0;}
+  pre{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:16px 20px;margin:12px 0;overflow-x:auto;font-size:13px;font-family:monospace;line-height:1.8;color:#e8b4b0;}
+  .tip{background:rgba(232,48,42,0.08);border-left:3px solid var(--accent);border-radius:0 6px 6px 0;padding:12px 16px;margin:16px 0;font-size:14px;}
+  .tip strong{color:var(--accent);}
+  .checklist{list-style:none;margin:12px 0;}
+  .checklist li{padding:8px 0;border-bottom:1px solid var(--border);font-size:15px;display:flex;align-items:flex-start;gap:12px;}
+  .checklist li:last-child{border-bottom:none;}
+  .check{width:18px;height:18px;border:1.5px solid var(--border);border-radius:3px;flex-shrink:0;margin-top:2px;}
+  .url-pill{display:inline-block;background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:4px 12px;font-family:monospace;font-size:13px;color:var(--live);margin:4px 0;}
+  table{width:100%;border-collapse:collapse;margin:12px 0;font-size:14px;}
+  th{font-family:var(--font-head);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);text-align:left;padding:8px 12px;border-bottom:1px solid var(--border);}
+  td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,0.04);vertical-align:top;}
+  tr:last-child td{border-bottom:none;}
+  .badge{display:inline-block;padding:2px 8px;border-radius:3px;font-family:var(--font-head);font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
+  .badge-live{background:var(--live);color:#fff;}
+  .badge-soon{background:var(--bg3);color:var(--text2);border:1px solid var(--border);}
+  .divider{border:none;border-top:1px solid var(--border);margin:48px 0;}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:12px 0;}
+  @media(max-width:600px){.two-col{grid-template-columns:1fr;}}
+  footer{margin-top:64px;padding-top:24px;border-top:1px solid var(--border);font-size:13px;color:var(--text3);}
+  footer span{color:var(--accent);}
+</style>
+</head>
+<body>
+
+<h1>Broadcast<span>Pal</span></h1>
+<div class="subtitle">Game Day Operator Guide · Peak Platforms · Purpose-Built Platforms for Mission-Driven People</div>
+
+<div class="card">
+  <div class="card-title">What this guide covers</div>
+  <p>Everything you need to run a live POV broadcast from Mentra Live glasses to your fan viewer page — from pre-game setup through post-game shutdown. Takes about 15 minutes to set up before kickoff.</p>
+  <div class="two-col">
+    <div>
+      <strong style="font-family:var(--font-head);font-size:13px;letter-spacing:.04em;text-transform:uppercase;">Your URLs</strong>
+      <div style="margin-top:8px;">
+        <div style="font-size:12px;color:var(--text2);margin-bottom:2px;">Viewer portal</div>
+        <div class="url-pill">broadcastpal.fun/live</div>
+        <div style="font-size:12px;color:var(--text2);margin:8px 0 2px;">Director dashboard</div>
+        <div class="url-pill">broadcastpal.fun/director</div>
+        <div style="font-size:12px;color:var(--text2);margin:8px 0 2px;">Fan app</div>
+        <div class="url-pill">xsen.fun/app.html</div>
+      </div>
+    </div>
+    <div>
+      <strong style="font-family:var(--font-head);font-size:13px;letter-spacing:.04em;text-transform:uppercase;">Your infrastructure</strong>
+      <div style="margin-top:8px;font-size:13px;line-height:2;color:var(--text2);">
+        Railway · 4 services online<br>
+        Supabase · hvqzrdlbtfezwuveincs<br>
+        RTMP · shortline.proxy.rlwy.net:12083<br>
+        AzuraCast · stream.xsen.fun
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- STEP 1 -->
+<h2><span class="step-num">1</span>Day before — register the game</h2>
+
+<p>Open Supabase → Table Editor → <strong>games</strong> table → find the school's row → update the opponent name and game date.</p>
+
+<div class="card">
+  <div class="card-title">Update via API (faster)</div>
+  <p>Or use the API directly from any terminal. Replace the game ID and details:</p>
+  <pre>curl -X PATCH https://broadcastpal-server-production.up.railway.app/games/GAME_ID/status \
+  -H "Content-Type: application/json" \
+  -d '{"status":"upcoming"}'</pre>
+  <p style="margin-top:8px;">School game IDs:</p>
+  <table>
+    <tr><th>School</th><th>Game ID</th></tr>
+    <tr><td>Oklahoma Sooners</td><td><code>7a8d9693-3e31-43d6-94bb-cc8d537b8a82</code></td></tr>
+    <tr><td>Oklahoma State Cowboys</td><td><code>f7df2de2-37fd-49bf-8ed9-b91b23730ed6</code></td></tr>
+    <tr><td>Texas Longhorns</td><td><code>03f1d73b-b94c-4df3-be58-1b15dc140a07</code></td></tr>
+  </table>
+</div>
+
+<div class="tip"><strong>Tip:</strong> Update the opponent field in Supabase so viewers see "OU vs Texas Tech" instead of "OU vs TBD" in the game grid.</div>
+
+<!-- STEP 2 -->
+<h2><span class="step-num">2</span>Game day — pre-game checklist</h2>
+
+<ul class="checklist">
+  <li><span class="check"></span>Confirm all 4 Railway services are online at <code>broadcastpal-server-production.up.railway.app/health</code></li>
+  <li><span class="check"></span>Set game status to <strong>live</strong> in Supabase → games table → status column</li>
+  <li><span class="check"></span>Confirm glasses are charged and paired to MentraOS app on phone</li>
+  <li><span class="check"></span>Open director dashboard at <code>broadcastpal.fun/director</code> on your laptop</li>
+  <li><span class="check"></span>Share viewer link with fans: <code>broadcastpal.fun/live</code></li>
+  <li><span class="check"></span>Test radio stream is live at <code>stream.xsen.fun/listen/xsen_sooners/radio.mp3</code></li>
+</ul>
+
+<h3>Set game to live</h3>
+<p>In Supabase → Table Editor → games → find the game row → change <code>status</code> from <code>upcoming</code> to <code>live</code>. This makes it appear prominently in the viewer portal.</p>
+
+<!-- STEP 3 -->
+<h2><span class="step-num">3</span>Starting a stream — glasses operator</h2>
+
+<p>Each person wearing Mentra Live glasses follows these steps:</p>
+
+<div class="card">
+  <div class="card-title">Glasses operator instructions</div>
+  <ol style="padding-left:20px;line-height:2.2;font-size:15px;">
+    <li>Put on Mentra Live glasses</li>
+    <li>Open MentraOS app on phone — confirm glasses are connected</li>
+    <li>Open <strong>BroadcastPal</strong> from the MiniApp list</li>
+    <li>Glasses display shows: <em>📡 BroadcastPal — Say "go live" to start streaming</em></li>
+    <li>Say <strong>"go live"</strong> clearly</li>
+    <li>Glasses display changes to: <em>🔴 LIVE — Stream key: xxxxxxxx</em></li>
+    <li>You are now broadcasting your POV</li>
+  </ol>
+  <div class="tip" style="margin-top:16px;"><strong>To stop:</strong> Say "stop" or long-press the glasses button.</div>
+</div>
+
+<div class="two-col">
+  <div class="card">
+    <div class="card-title">Voice commands</div>
+    <table>
+      <tr><th>Say</th><th>Action</th></tr>
+      <tr><td>"go live"</td><td>Start stream</td></tr>
+      <tr><td>"start streaming"</td><td>Start stream</td></tr>
+      <tr><td>"stop"</td><td>End stream</td></tr>
+      <tr><td>"cut"</td><td>End stream</td></tr>
+      <tr><td>"status"</td><td>Show stream info</td></tr>
+      <tr><td>"how long"</td><td>Show duration</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">Button controls</div>
+    <table>
+      <tr><th>Press</th><th>Action</th></tr>
+      <tr><td>Short press</td><td>Show status</td></tr>
+      <tr><td>Long press</td><td>Toggle live on/off</td></tr>
+    </table>
+    <div style="margin-top:12px;font-size:13px;color:var(--text2);">Button controls work as backup if voice isn't reliable in loud stadium environments.</div>
+  </div>
+</div>
+
+<!-- STEP 4 -->
+<h2><span class="step-num">4</span>Director — starting multiview</h2>
+
+<p>Once glasses operators are live, open <code>broadcastpal.fun/director</code> on your laptop.</p>
+
+<div class="card">
+  <div class="card-title">Starting a multiview broadcast</div>
+  <ol style="padding-left:20px;line-height:2.4;font-size:15px;">
+    <li>Active streams appear in the left panel as cards</li>
+    <li>Tap each stream you want to include (up to 4)</li>
+    <li>Select the score overlay team from the dropdown</li>
+    <li>Click <strong>Start Multiview</strong></li>
+    <li>The composed stream is now available at:<br>
+      <code>broadcastpal-nginx-production.up.railway.app/hls/composite/output.m3u8</code>
+    </li>
+    <li>Fans watching at <code>broadcastpal.fun/live</code> see the Multiview option appear automatically</li>
+  </ol>
+</div>
+
+<h3>Switching audio mid-broadcast</h3>
+<p>In the director dashboard → find the running session → tap a <strong>Feed 1 / Feed 2 / Feed 3 / Feed 4</strong> button under Audio Source. The live mic switches instantly — useful when different fans are in better positions at different points in the game.</p>
+
+<h3>Swapping the score overlay</h3>
+<p>Use the score overlay dropdown in the running session to switch between OU, OSU, and Texas without restarting the broadcast. The new overlay burns into the stream within a few seconds.</p>
+
+<!-- STEP 5 -->
+<h2><span class="step-num">5</span>What fans see</h2>
+
+<div class="two-col">
+  <div class="card">
+    <div class="card-title">broadcastpal.fun/live</div>
+    <p style="font-size:14px;">Standalone viewer portal. Share this link on social media, in group chats, or embed on your booster club site. Shows all active games, POV feeds, and the multiview. Includes radio and live score.</p>
+  </div>
+  <div class="card">
+    <div class="card-title">xsen.fun app.html</div>
+    <p style="font-size:14px;">Full fan experience — Boomer Bot, radio, video highlights, and the live POV stream in one place. For existing XSEN subscribers. Live Video tab appears automatically when a stream is active.</p>
+  </div>
+</div>
+
+<!-- STEP 6 -->
+<h2><span class="step-num">6</span>Post-game shutdown</h2>
+
+<ul class="checklist">
+  <li><span class="check"></span>Glasses operators say <strong>"stop"</strong> to end their streams</li>
+  <li><span class="check"></span>In director dashboard → click <strong>Stop</strong> on any running multiview sessions</li>
+  <li><span class="check"></span>In Supabase → games table → change game status from <code>live</code> to <code>ended</code></li>
+  <li><span class="check"></span>Confirm viewer portal shows "Upcoming" or no active feeds</li>
+</ul>
+
+<hr class="divider">
+
+<!-- Troubleshooting -->
+<h2 style="margin-top:0;"><span class="step-num" style="background:var(--bg3);color:var(--text2);border:1px solid var(--border);">?</span>Troubleshooting</h2>
+
+<table>
+  <tr><th>Problem</th><th>Fix</th></tr>
+  <tr>
+    <td>Glasses say "stream failed to start"</td>
+    <td>Check WiFi signal. Move closer to access point. Try saying "go live" again. Check Railway services are online.</td>
+  </tr>
+  <tr>
+    <td>Stream doesn't appear in director dashboard</td>
+    <td>Refresh the dashboard. Active streams update every 15 seconds. Confirm glasses display shows 🔴 LIVE.</td>
+  </tr>
+  <tr>
+    <td>Viewer portal shows 0 feeds</td>
+    <td>Confirm game status is set to "live" in Supabase. Refresh portal — it updates every 30 seconds.</td>
+  </tr>
+  <tr>
+    <td>Video player shows black screen</td>
+    <td>Multiview takes 10–15 seconds to start compositing after you click Start Multiview. Wait and refresh.</td>
+  </tr>
+  <tr>
+    <td>Audio sounds wrong or silent</td>
+    <td>Use the Audio Source switcher in the director dashboard to select a different feed.</td>
+  </tr>
+  <tr>
+    <td>Score overlay not updating</td>
+    <td>Overlay refreshes every 45 seconds from ESPN. If no game is found, overlay won't show. Confirm ESPN team ID matches the game being played.</td>
+  </tr>
+  <tr>
+    <td>Railway services offline</td>
+    <td>Go to railway.app → BroadcastPal Core project → restart any failed services.</td>
+  </tr>
+</table>
+
+<hr class="divider">
+
+<!-- Quick reference -->
+<h2 style="margin-top:0;"><span class="step-num" style="background:var(--bg3);color:var(--text2);border:1px solid var(--border);">★</span>Quick reference card</h2>
+
+<div class="two-col">
+  <div class="card">
+    <div class="card-title">Key URLs</div>
+    <table>
+      <tr><td style="color:var(--text2);font-size:13px;">Viewer portal</td><td><code style="font-size:11px;">broadcastpal.fun/live</code></td></tr>
+      <tr><td style="color:var(--text2);font-size:13px;">Director</td><td><code style="font-size:11px;">broadcastpal.fun/director</code></td></tr>
+      <tr><td style="color:var(--text2);font-size:13px;">Fan app</td><td><code style="font-size:11px;">xsen.fun/app.html</code></td></tr>
+      <tr><td style="color:var(--text2);font-size:13px;">API health</td><td><code style="font-size:11px;">/health</code></td></tr>
+      <tr><td style="color:var(--text2);font-size:13px;">Active streams</td><td><code style="font-size:11px;">/streams</code></td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">ESPN team IDs</div>
+    <table>
+      <tr><td>Oklahoma Sooners</td><td><code>201</code></td></tr>
+      <tr><td>Oklahoma State Cowboys</td><td><code>197</code></td></tr>
+      <tr><td>Texas Longhorns</td><td><code>251</code></td></tr>
+    </table>
+    <div style="margin-top:12px;">
+      <div class="card-title">MentraOS app</div>
+      <div style="font-size:13px;color:var(--text2);">Package: <code>com.peakplatforms.broadcastpal</code></div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  BroadcastPal · <span>Peak Platforms</span> · Purpose-Built Platforms for Mission-Driven People<br>
+  For support contact Peak Platforms. RTMP ingest: shortline.proxy.rlwy.net:12083
+</footer>
+
+</body>
+</html>
