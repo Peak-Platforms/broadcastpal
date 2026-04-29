@@ -1,0 +1,2 @@
+/*
+  Content-Security-Policy: media-src 'self' https: blob:; worker-src blob: 'self';
