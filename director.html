@@ -2,8 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="media-src 'self' https: blob:;">
-  <!-- v2 - CSP blob fix -->
+<meta http-equiv="Content-Security-Policy" content="media-src 'self' https: blob:; worker-src blob:;">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BroadcastPal — Director Dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest/dist/hls.min.js"></script>
@@ -40,14 +39,10 @@
   .btn-stop-fans{background:#7f1d1d;color:#fca5a5;border:1px solid #991b1b;}
   .btn-sm{padding:4px 10px;font-size:11px;}
   .btn-group{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;}
-
-  /* Stream card with preview */
   .stream-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;overflow:hidden;transition:border-color .2s;}
   .stream-card.is-featured{border-color:var(--live);box-shadow:0 0 0 1px var(--live);}
   .stream-preview{position:relative;aspect-ratio:16/9;background:#000;overflow:hidden;}
   .stream-preview video{width:100%;height:100%;object-fit:cover;display:block;}
-  .stream-preview-offline{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;color:var(--text3);}
-  .stream-preview-offline span{font-family:var(--font-head);font-size:10px;letter-spacing:.1em;text-transform:uppercase;}
   .preview-label{position:absolute;top:6px;left:6px;background:rgba(0,0,0,0.75);padding:2px 8px;border-radius:3px;font-family:var(--font-head);font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text);}
   .preview-live-dot{position:absolute;top:8px;right:8px;width:8px;height:8px;background:var(--accent);border-radius:50%;animation:pulse 1.2s infinite;}
   .stream-card-body{padding:10px 14px 12px;}
@@ -55,7 +50,6 @@
   .stream-card-title{font-family:var(--font-head);font-size:14px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;}
   .stream-card-meta{font-size:11px;color:var(--text2);margin-bottom:8px;}
   .stream-card-actions{display:flex;gap:6px;}
-
   .stream-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0;}
   .stream-item{background:var(--bg3);border:2px solid var(--border);border-radius:var(--radius);padding:10px;cursor:pointer;transition:border-color .15s;}
   .stream-item:hover{border-color:var(--border-active);}
@@ -79,8 +73,6 @@
   .refresh-btn:hover{color:var(--text2);}
   .score-row{display:flex;gap:6px;margin-top:6px;align-items:center;}
   .score-row select{flex:1;}
-
-  /* Fan output status bar */
   .fan-status{display:flex;align-items:center;gap:10px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;margin-bottom:16px;}
   .fan-status-label{font-family:var(--font-head);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);}
   .fan-status-value{font-family:var(--font-head);font-size:12px;font-weight:700;letter-spacing:.04em;color:var(--text2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
@@ -99,11 +91,7 @@
 </header>
 
 <div class="main">
-
-  <!-- Left: Active streams -->
   <div class="panel">
-
-    <!-- Fan output status -->
     <div class="fan-status">
       <span class="fan-status-label">Fans seeing:</span>
       <span class="fan-status-value offline" id="fanStatusValue">⬤ Offline</span>
@@ -118,7 +106,6 @@
       <div class="card">
         <div class="card-meta" style="margin-bottom:8px;">Select feeds to compose (tap to toggle)</div>
         <div class="stream-grid" id="feedSelector"><div class="empty" style="grid-column:1/-1;padding:16px">No streams available</div></div>
-
         <label>Score overlay</label>
         <div class="score-row">
           <select id="overlayTeam">
@@ -128,7 +115,6 @@
             <option value="251">Texas Longhorns</option>
           </select>
         </div>
-
         <div class="btn-group">
           <button class="btn btn-primary" onclick="startMultiview()">Start multiview</button>
         </div>
@@ -136,12 +122,10 @@
     </div>
   </div>
 
-  <!-- Right: Running multiview sessions -->
   <div class="panel">
     <div class="panel-title">Multiview sessions <span id="mvCount" style="color:var(--text2);">(0)</span></div>
     <div id="mvList"><div class="empty">No active sessions</div></div>
   </div>
-
 </div>
 
 <div class="toast" id="toast"></div>
@@ -151,6 +135,7 @@ const SERVER = 'https://broadcastpal-server-production.up.railway.app';
 const SUPABASE_URL = 'https://hvqzrdlbtfezwuveincs.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh2cXpyZGxidGZlend1dmVpbmNzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMyOTA1MTgsImV4cCI6MjA3ODg2NjUxOH0.30_fdpT1hu_m3zyf-8IywXWIozjIDnqv5RHs6T9hCTo';
 const SCHOOL = 'OU';
+const NGINX_HLS = 'https://broadcastpal-nginx-production.up.railway.app/hls';
 
 let selectedStreams = new Set();
 let featuredStreamKey = null;
@@ -182,9 +167,7 @@ async function supabasePatch(hlsUrl) {
       },
       body: JSON.stringify({ hls_stream_url: hlsUrl })
     });
-  } catch(e) {
-    console.error('Supabase error:', e);
-  }
+  } catch(e) { console.error('Supabase error:', e); }
 }
 
 function toast(msg) {
@@ -198,7 +181,7 @@ function updateFanStatus(hlsUrl) {
   const val = document.getElementById('fanStatusValue');
   const btn = document.getElementById('stopFansBtn');
   if (hlsUrl) {
-    val.textContent = '🔴 ' + hlsUrl.split('/hls/')[1]?.replace('/index.m3u8','') || 'Live';
+    val.textContent = '🔴 ' + (hlsUrl.split('/hls/')[1]?.replace('/index.m3u8','') || 'Live');
     val.className = 'fan-status-value live';
     btn.style.display = 'block';
   } else {
@@ -225,11 +208,24 @@ async function stopFanStream() {
 }
 
 function attachHlsPlayer(videoEl, hlsUrl) {
+  if (typeof Hls === 'undefined') return null;
   if (Hls.isSupported()) {
-    const hls = new Hls({ lowLatencyMode: true });
+    const hls = new Hls({
+      lowLatencyMode: true,
+      enableWorker: true,
+      maxBufferLength: 10,
+    });
+    hls.on(Hls.Events.ERROR, (event, data) => {
+      if (data.fatal) {
+        console.warn('[Director] HLS fatal error:', data.type);
+        hls.destroy();
+      }
+    });
     hls.loadSource(hlsUrl);
     hls.attachMedia(videoEl);
-    hls.on(Hls.Events.MANIFEST_PARSED, () => videoEl.play().catch(() => {}));
+    hls.on(Hls.Events.MANIFEST_PARSED, () => {
+      videoEl.play().catch(() => {});
+    });
     return hls;
   } else if (videoEl.canPlayType('application/vnd.apple.mpegurl')) {
     videoEl.src = hlsUrl;
@@ -250,7 +246,6 @@ async function loadStreams() {
   if (!streams.length) {
     list.innerHTML = '<div class="empty">No active streams</div>';
     selector.innerHTML = '<div class="empty" style="grid-column:1/-1;padding:16px">No streams available</div>';
-    // Destroy old HLS players
     Object.values(hlsPlayers).forEach(h => h && h.destroy && h.destroy());
     hlsPlayers = {};
     return;
@@ -258,11 +253,11 @@ async function loadStreams() {
 
   list.innerHTML = streams.map(s => {
     const isFeatured = s.streamKey === featuredStreamKey;
-    const hlsUrl = s.hlsUrl || `https://broadcastpal-nginx-production.up.railway.app/hls/${s.streamKey}/index.m3u8`;
+    const hlsUrl = s.hlsUrl || `${NGINX_HLS}/${s.streamKey}/index.m3u8`;
     return `
     <div class="stream-card ${isFeatured ? 'is-featured' : ''}">
       <div class="stream-preview">
-        <video id="preview-${s.streamKey}" autoplay muted playsinline></video>
+        <video id="preview-${s.streamKey}" autoplay muted playsinline style="width:100%;height:100%;object-fit:cover;display:block;"></video>
         <div class="preview-label">CAM · ${s.streamKey.slice(0,6).toUpperCase()}</div>
         <div class="preview-live-dot"></div>
       </div>
@@ -282,22 +277,25 @@ async function loadStreams() {
     </div>`;
   }).join('');
 
-  // Attach HLS players to preview videos
-  streams.forEach(s => {
-    const videoEl = document.getElementById(`preview-${s.streamKey}`);
-    if (videoEl && !hlsPlayers[s.streamKey]) {
-      const hlsUrl = s.hlsUrl || `https://broadcastpal-nginx-production.up.railway.app/hls/${s.streamKey}/index.m3u8`;
-      hlsPlayers[s.streamKey] = attachHlsPlayer(videoEl, hlsUrl);
-    }
-  });
-
-  // Clean up players for streams that are gone
-  Object.keys(hlsPlayers).forEach(key => {
-    if (!streams.find(s => s.streamKey === key)) {
-      if (hlsPlayers[key]) { hlsPlayers[key].destroy(); }
-      delete hlsPlayers[key];
-    }
-  });
+  // Wait for DOM then attach HLS players
+  setTimeout(() => {
+    streams.forEach(s => {
+      const hlsUrl = s.hlsUrl || `${NGINX_HLS}/${s.streamKey}/index.m3u8`;
+      if (!hlsPlayers[s.streamKey]) {
+        const videoEl = document.getElementById(`preview-${s.streamKey}`);
+        if (videoEl) {
+          hlsPlayers[s.streamKey] = attachHlsPlayer(videoEl, hlsUrl);
+        }
+      }
+    });
+    // Clean up stale players
+    Object.keys(hlsPlayers).forEach(key => {
+      if (!streams.find(s => s.streamKey === key)) {
+        if (hlsPlayers[key]) hlsPlayers[key].destroy();
+        delete hlsPlayers[key];
+      }
+    });
+  }, 150);
 
   selector.innerHTML = streams.map(s => `
     <div class="stream-item ${selectedStreams.has(s.streamKey) ? 'selected' : ''}"
@@ -323,13 +321,8 @@ async function loadMultiview() {
   const sessions = await api('GET', '/multiview');
   if (!sessions) return;
   document.getElementById('mvCount').textContent = `(${sessions.length})`;
-
   const list = document.getElementById('mvList');
-  if (!sessions.length) {
-    list.innerHTML = '<div class="empty">No active sessions</div>';
-    return;
-  }
-
+  if (!sessions.length) { list.innerHTML = '<div class="empty">No active sessions</div>'; return; }
   list.innerHTML = sessions.map(s => `
     <div class="mv-session">
       <div class="mv-header">
@@ -339,38 +332,27 @@ async function loadMultiview() {
         </div>
         <button class="btn btn-danger btn-sm" onclick="stopSession('${s.id}')">Stop</button>
       </div>
-
       <div class="card-meta">Feeds: ${s.streams.join(', ')}</div>
-
       <div style="margin-top:10px;">
         <div style="font-size:11px;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px;">Feature to fans</div>
-        <button class="btn btn-feature btn-sm" onclick="featureStream('multiview', 'https://broadcastpal-nginx-production.up.railway.app/hls/composite/index.m3u8')">
-          ▶ Feature Multiview
-        </button>
+        <button class="btn btn-feature btn-sm" onclick="featureStream('multiview', '${NGINX_HLS}/composite/index.m3u8')">▶ Feature Multiview</button>
       </div>
-
       <div style="margin-top:10px;">
         <div style="font-size:11px;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px;">Audio source</div>
         <div class="audio-btns">
           ${s.streams.map((key, i) => `
-            <button class="audio-btn ${s.activeAudioStream === i ? 'active' : ''}"
-                    onclick="switchAudio('${s.id}', ${i}, this)">
-              Feed ${i+1}
-            </button>
+            <button class="audio-btn ${s.activeAudioStream === i ? 'active' : ''}" onclick="switchAudio('${s.id}', ${i}, this)">Feed ${i+1}</button>
           `).join('')}
         </div>
       </div>
-
       <div style="margin-top:10px;">
         <div style="font-size:11px;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px;">Score overlay</div>
-        <div style="display:flex;gap:6px;">
-          <select onchange="switchOverlay('${s.id}', this.value)" style="flex:1;">
-            <option value="">No overlay</option>
-            <option value="201" ${s.overlayTeam==='201'?'selected':''}>Oklahoma Sooners</option>
-            <option value="197" ${s.overlayTeam==='197'?'selected':''}>Oklahoma State Cowboys</option>
-            <option value="251" ${s.overlayTeam==='251'?'selected':''}>Texas Longhorns</option>
-          </select>
-        </div>
+        <select onchange="switchOverlay('${s.id}', this.value)" style="flex:1;">
+          <option value="">No overlay</option>
+          <option value="201" ${s.overlayTeam==='201'?'selected':''}>Oklahoma Sooners</option>
+          <option value="197" ${s.overlayTeam==='197'?'selected':''}>Oklahoma State Cowboys</option>
+          <option value="251" ${s.overlayTeam==='251'?'selected':''}>Texas Longhorns</option>
+        </select>
       </div>
     </div>
   `).join('');
@@ -378,14 +360,8 @@ async function loadMultiview() {
 
 async function startMultiview() {
   if (!selectedStreams.size) { toast('Select at least 1 feed'); return; }
-  const streamKeys = [...selectedStreams];
-  const overlayTeam = document.getElementById('overlayTeam').value;
-  const result = await api('POST', '/multiview/start', {streamKeys, overlayTeam: overlayTeam || undefined, destinations: []});
-  if (result?.id) {
-    toast(`Multiview started: ${result.id}`);
-    selectedStreams.clear();
-    refreshAll();
-  }
+  const result = await api('POST', '/multiview/start', {streamKeys: [...selectedStreams], overlayTeam: document.getElementById('overlayTeam').value || undefined, destinations: []});
+  if (result?.id) { toast(`Multiview started: ${result.id}`); selectedStreams.clear(); refreshAll(); }
 }
 
 async function stopSession(id) {
@@ -408,14 +384,10 @@ async function switchOverlay(id, teamId) {
   toast('Overlay updated');
 }
 
-function refreshAll() {
-  loadStreams();
-  loadMultiview();
-}
+function refreshAll() { loadStreams(); loadMultiview(); }
 
 refreshAll();
 setInterval(refreshAll, 10000);
 </script>
 </body>
 </html>
-
