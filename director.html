@@ -173,14 +173,18 @@ function setFanBar(hlsUrl) {
   }
 }
 
-// ── HLS player — same as app.html ────────────────────────────────────────────
+// ── HLS player ────────────────────────────────────────────────────────────────
 function attachHls(id, hlsUrl) {
-  // Destroy existing player for this id if any
   if (hlsPlayers[id]) { hlsPlayers[id].destroy(); delete hlsPlayers[id]; }
   const videoEl = document.getElementById(id);
   if (!videoEl) return;
   if (window.Hls && Hls.isSupported()) {
-    const hls = new Hls({ lowLatencyMode: true });
+    const hls = new Hls({
+      lowLatencyMode: false,
+      maxBufferLength: 30,
+      maxMaxBufferLength: 60,
+      maxBufferSize: 60 * 1000 * 1000,
+    });
     hls.loadSource(hlsUrl);
     hls.attachMedia(videoEl);
     hls.on(Hls.Events.MANIFEST_PARSED, () => videoEl.play().catch(() => {}));
