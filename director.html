@@ -222,6 +222,9 @@ function attachHlsPlayer(videoEl, hlsUrl) {
       levelLoadingMaxRetry: 6,
       fragLoadingTimeOut: 20000,
       fragLoadingMaxRetry: 6,
+      liveDurationInfinity: true,
+      liveBackBufferLength: 0,
+      maxMaxBufferLength: 4,
     });
 
     hls.loadSource(hlsUrl);
@@ -420,4 +423,5 @@ setInterval(refreshAll, 10000);
 </script>
 </body>
 </html>
+
 
