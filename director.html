@@ -3,141 +3,160 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BroadcastPal — Director Dashboard</title>
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest/dist/hls.min.js"></script>
+<title>BroadcastPal — Director</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500&display=swap');
   :root {
     --bg:#0a0a0a;--bg2:#141414;--bg3:#1c1c1c;
-    --border:rgba(255,255,255,0.08);--border-active:rgba(255,255,255,0.25);
+    --border:rgba(255,255,255,0.08);
     --text:#f0f0f0;--text2:#888;--text3:#555;
-    --accent:#e8302a;--live:#22c55e;--offline:#555;--radius:6px;
+    --accent:#e8302a;--live:#22c55e;--radius:6px;
     --font-head:'Barlow Condensed',sans-serif;--font-body:'Barlow',sans-serif;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100vh;}
-  header{display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:52px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;background:var(--bg);}
+
+  header{display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:52px;border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:100;}
   .logo{font-family:var(--font-head);font-weight:900;font-size:20px;letter-spacing:.08em;text-transform:uppercase;}
   .logo span{color:var(--accent);}
-  .status-dot{width:8px;height:8px;border-radius:50%;background:var(--live);animation:pulse 1.8s ease-in-out infinite;display:inline-block;margin-right:6px;}
-  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-  .main{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);min-height:calc(100vh - 52px);}
-  .panel{background:var(--bg);padding:20px;}
-  .panel-title{font-family:var(--font-head);font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin-bottom:14px;}
-  .card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px;}
-  .card-meta{font-size:12px;color:var(--text2);}
-  .live-badge{display:inline-flex;align-items:center;gap:5px;background:var(--accent);color:#fff;font-family:var(--font-head);font-size:10px;font-weight:700;letter-spacing:.08em;padding:2px 8px;border-radius:3px;text-transform:uppercase;margin-left:8px;}
-  .featured-badge{display:inline-flex;align-items:center;gap:5px;background:var(--live);color:#fff;font-family:var(--font-head);font-size:10px;font-weight:700;letter-spacing:.08em;padding:2px 8px;border-radius:3px;text-transform:uppercase;margin-left:8px;}
-  .btn{font-family:var(--font-head);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:7px 14px;border-radius:var(--radius);border:none;cursor:pointer;transition:opacity .15s;}
-  .btn:hover{opacity:.85;}
-  .btn-primary{background:var(--accent);color:#fff;}
-  .btn-feature{background:var(--live);color:#fff;}
-  .btn-secondary{background:var(--bg3);color:var(--text);border:1px solid var(--border);}
-  .btn-danger{background:#7f1d1d;color:#fca5a5;}
-  .btn-stop-fans{background:#7f1d1d;color:#fca5a5;border:1px solid #991b1b;}
-  .btn-sm{padding:4px 10px;font-size:11px;}
-  .btn-group{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;}
-  .stream-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;overflow:hidden;transition:border-color .2s;}
-  .stream-card.is-featured{border-color:var(--live);box-shadow:0 0 0 1px var(--live);}
-  .stream-preview{position:relative;aspect-ratio:16/9;background:#000;overflow:hidden;}
-  .stream-preview video{width:100%;height:100%;object-fit:cover;display:block;}
-  .preview-label{position:absolute;top:6px;left:6px;background:rgba(0,0,0,0.75);padding:2px 8px;border-radius:3px;font-family:var(--font-head);font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text);}
-  .preview-live-dot{position:absolute;top:8px;right:8px;width:8px;height:8px;background:var(--accent);border-radius:50%;animation:pulse 1.2s infinite;}
-  .stream-card-body{padding:10px 14px 12px;}
-  .stream-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
-  .stream-card-title{font-family:var(--font-head);font-size:14px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;}
-  .stream-card-meta{font-size:11px;color:var(--text2);margin-bottom:8px;}
-  .stream-card-actions{display:flex;gap:6px;}
-  .stream-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0;}
-  .stream-item{background:var(--bg3);border:2px solid var(--border);border-radius:var(--radius);padding:10px;cursor:pointer;transition:border-color .15s;}
-  .stream-item:hover{border-color:var(--border-active);}
-  .stream-item.selected{border-color:var(--accent);}
-  .stream-item .key{font-family:var(--font-head);font-size:13px;font-weight:700;text-transform:uppercase;}
-  .stream-item .meta{font-size:11px;color:var(--text2);margin-top:2px;}
-  .mv-session{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px;}
-  .mv-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
-  .mv-title{font-family:var(--font-head);font-size:14px;font-weight:700;text-transform:uppercase;}
-  .audio-btns{display:flex;gap:4px;flex-wrap:wrap;margin-top:8px;}
-  .audio-btn{font-size:11px;font-family:var(--font-head);padding:4px 10px;border-radius:3px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);cursor:pointer;transition:all .15s;}
-  .audio-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
-  .audio-btn:hover{border-color:var(--border-active);}
-  select,input{background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:var(--radius);padding:7px 10px;font-family:var(--font-body);font-size:13px;width:100%;margin-top:6px;}
-  select:focus,input:focus{outline:none;border-color:var(--border-active);}
-  label{font-size:12px;color:var(--text2);display:block;margin-top:10px;}
-  .empty{text-align:center;padding:32px;color:var(--text3);font-family:var(--font-head);font-size:12px;letter-spacing:.08em;text-transform:uppercase;}
+
+  /* Fan status bar */
+  .fan-bar{display:flex;align-items:center;gap:12px;background:var(--bg2);border-bottom:1px solid var(--border);padding:10px 24px;}
+  .fan-bar-label{font-family:var(--font-head);font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);}
+  .fan-bar-value{font-family:var(--font-head);font-size:13px;font-weight:700;flex:1;color:var(--text2);}
+  .fan-bar-value.live{color:var(--live);}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--live);animation:pulse 1.5s infinite;display:inline-block;margin-right:6px;}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+  /* Feed grid */
+  .feeds{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:20px;max-width:1200px;margin:0 auto;}
+  @media(min-width:900px){.feeds{grid-template-columns:repeat(4,1fr);}}
+
+  .feed-card{background:var(--bg2);border:2px solid var(--border);border-radius:8px;overflow:hidden;transition:border-color .2s;}
+  .feed-card.on-air{border-color:var(--live);box-shadow:0 0 16px rgba(34,197,94,0.3);}
+  .feed-card.offline{opacity:0.5;}
+
+  .feed-video-wrap{position:relative;aspect-ratio:16/9;background:#000;}
+  .feed-video-wrap video{width:100%;height:100%;object-fit:cover;display:block;}
+  .feed-video-wrap iframe{width:100%;height:100%;border:none;display:block;}
+
+  .offline-placeholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;color:var(--text3);}
+  .offline-placeholder svg{opacity:.3;}
+  .offline-placeholder span{font-family:var(--font-head);font-size:11px;letter-spacing:.1em;text-transform:uppercase;}
+
+  .on-air-badge{position:absolute;top:8px;left:8px;background:var(--live);color:#000;font-family:var(--font-head);font-size:10px;font-weight:700;letter-spacing:.1em;padding:2px 8px;border-radius:3px;text-transform:uppercase;}
+  .cam-label{position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.7);color:var(--text2);font-family:var(--font-head);font-size:10px;font-weight:700;letter-spacing:.06em;padding:2px 8px;border-radius:3px;text-transform:uppercase;}
+
+  .feed-body{padding:10px 12px;}
+  .feed-key{font-family:var(--font-head);font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--text2);margin-bottom:8px;}
+
+  .btn{font-family:var(--font-head);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:8px 14px;border-radius:var(--radius);border:none;cursor:pointer;width:100%;transition:all .15s;}
+  .btn-feature{background:var(--live);color:#000;}
+  .btn-feature:hover{opacity:.85;}
+  .btn-on-air{background:#166534;color:#86efac;cursor:default;}
+  .btn-stop{background:#7f1d1d;color:#fca5a5;margin-top:6px;}
+  .btn-stop:hover{opacity:.85;}
+
+  /* Bottom controls */
+  .controls{padding:20px 24px;border-top:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+  .controls-label{font-family:var(--font-head);font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);}
+  select{background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:var(--radius);padding:7px 10px;font-family:var(--font-body);font-size:13px;}
+  .btn-mv{background:var(--accent);color:#fff;font-family:var(--font-head);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:8px 18px;border-radius:var(--radius);border:none;cursor:pointer;}
+  .btn-mv:hover{opacity:.85;}
+
+  .status-bar{padding:8px 24px;background:var(--bg2);border-top:1px solid var(--border);font-size:11px;color:var(--text3);display:flex;gap:16px;}
+  .status-item{display:flex;align-items:center;gap:6px;}
+
   .toast{position:fixed;bottom:24px;right:24px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:12px 18px;font-size:13px;z-index:999;transition:opacity .3s;opacity:0;}
   .toast.show{opacity:1;}
-  .refresh-btn{font-size:11px;color:var(--text3);cursor:pointer;font-family:var(--font-head);letter-spacing:.06em;text-transform:uppercase;}
-  .refresh-btn:hover{color:var(--text2);}
-  .score-row{display:flex;gap:6px;margin-top:6px;align-items:center;}
-  .score-row select{flex:1;}
-  .fan-status{display:flex;align-items:center;gap:10px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;margin-bottom:16px;}
-  .fan-status-label{font-family:var(--font-head);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);}
-  .fan-status-value{font-family:var(--font-head);font-size:12px;font-weight:700;letter-spacing:.04em;color:var(--text2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .fan-status-value.live{color:var(--live);}
-  .fan-status-value.offline{color:var(--text3);}
+
+  .no-streams{padding:60px 24px;text-align:center;color:var(--text3);font-family:var(--font-head);font-size:13px;letter-spacing:.1em;text-transform:uppercase;}
+
+  /* Director comms */
+  .comms-bar{display:flex;align-items:center;gap:10px;background:var(--bg2);border-bottom:1px solid var(--border);padding:10px 24px;}
+  .comms-label{font-family:var(--font-head);font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);white-space:nowrap;}
+  .comms-input{flex:1;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:var(--radius);padding:7px 12px;font-family:var(--font-body);font-size:13px;}
+  .comms-input:focus{outline:none;border-color:rgba(232,48,42,0.5);}
+  .comms-target{background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:var(--radius);padding:7px 10px;font-family:var(--font-body);font-size:12px;}
+  .btn-comms{font-family:var(--font-head);font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:7px 14px;border-radius:var(--radius);border:none;cursor:pointer;background:var(--accent);color:#fff;white-space:nowrap;}
+  .btn-comms:hover{opacity:.85;}
+  .comms-log{padding:6px 24px;background:#0a0a0a;border-bottom:1px solid var(--border);max-height:80px;overflow-y:auto;}
+  .comms-log-item{font-size:11px;color:var(--text3);padding:2px 0;font-family:var(--font-body);}
+  .comms-log-item .to{color:var(--accent);font-weight:600;}
+  .comms-log-item .msg{color:var(--text2);}
 </style>
 </head>
 <body>
 
 <header>
-  <div class="logo">Broadcast<span>Pal</span> <span style="color:var(--text3);font-size:14px;font-weight:400">Director</span></div>
+  <div class="logo">Broadcast<span>Pal</span> <span style="color:var(--text3);font-size:14px;font-weight:400;margin-left:8px;">Director</span></div>
   <div style="display:flex;align-items:center;gap:16px;">
-    <span class="refresh-btn" onclick="refreshAll()">↻ Refresh</span>
-    <span style="font-size:12px;color:var(--text2)"><span class="status-dot"></span>Live</span>
+    <span style="font-size:11px;color:var(--text3);cursor:pointer;font-family:var(--font-head);letter-spacing:.06em;text-transform:uppercase;" onclick="refreshAll()">↻ Refresh</span>
+    <span id="connStatus" style="font-size:12px;color:var(--text2);font-family:var(--font-head);">Connecting…</span>
   </div>
 </header>
 
-<div class="main">
-  <div class="panel">
-    <div class="fan-status">
-      <span class="fan-status-label">Fans seeing:</span>
-      <span class="fan-status-value offline" id="fanStatusValue">⬤ Offline</span>
-      <button class="btn btn-stop-fans btn-sm" onclick="stopFanStream()" id="stopFansBtn" style="display:none;">⬛ Stop</button>
-    </div>
+<!-- Fan output status -->
+<div class="fan-bar">
+  <span class="fan-bar-label">Fans seeing:</span>
+  <span class="fan-bar-value" id="fanBarValue">⬤ Offline</span>
+  <button class="btn btn-stop" style="width:auto;padding:6px 14px;margin:0;" id="stopFansBtn" onclick="stopFanStream()" style="display:none;">⬛ Stop Broadcast</button>
+</div>
 
-    <div class="panel-title">Active streams <span id="streamCount" style="color:var(--text2);">(0)</span></div>
-    <div id="streamList"><div class="empty">No active streams</div></div>
+<!-- Director comms -->
+<div class="comms-bar">
+  <span class="comms-label">📢 Message:</span>
+  <select class="comms-target" id="commsTarget">
+    <option value="all">All Operators</option>
+    <option value="cam1@xsen.fun">CAM 1</option>
+    <option value="cam2@xsen.fun">CAM 2</option>
+    <option value="cam3@xsen.fun">CAM 3</option>
+    <option value="cam4@xsen.fun">CAM 4</option>
+    <option value="cam-audio@xsen.fun">Audio</option>
+  </select>
+  <input class="comms-input" id="commsInput" type="text" placeholder="Type a message to operators… (shows on their glasses)" maxlength="80"
+    onkeydown="if(event.key==='Enter') sendComms()">
+  <button class="btn-comms" onclick="sendComms()">Send ➤</button>
+</div>
+<div class="comms-log" id="commsLog"></div>
 
-    <div style="margin-top:24px;">
-      <div class="panel-title">Start multiview</div>
-      <div class="card">
-        <div class="card-meta" style="margin-bottom:8px;">Select feeds to compose (tap to toggle)</div>
-        <div class="stream-grid" id="feedSelector"><div class="empty" style="grid-column:1/-1;padding:16px">No streams available</div></div>
-        <label>Score overlay</label>
-        <div class="score-row">
-          <select id="overlayTeam">
-            <option value="">No overlay</option>
-            <option value="201">Oklahoma Sooners</option>
-            <option value="197">Oklahoma State Cowboys</option>
-            <option value="251">Texas Longhorns</option>
-          </select>
-        </div>
-        <div class="btn-group">
-          <button class="btn btn-primary" onclick="startMultiview()">Start multiview</button>
-        </div>
-      </div>
-    </div>
-  </div>
+<!-- Feed grid -->
+<div class="feeds" id="feedGrid">
+  <div class="no-streams" style="grid-column:1/-1;">Waiting for streams…</div>
+</div>
 
-  <div class="panel">
-    <div class="panel-title">Multiview sessions <span id="mvCount" style="color:var(--text2);">(0)</span></div>
-    <div id="mvList"><div class="empty">No active sessions</div></div>
-  </div>
+<!-- Multiview controls -->
+<div class="controls">
+  <span class="controls-label">Multiview:</span>
+  <div id="mvFeedSelector" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+  <select id="overlayTeam">
+    <option value="">No score overlay</option>
+    <option value="201">Oklahoma Sooners</option>
+    <option value="197">Oklahoma State Cowboys</option>
+    <option value="251">Texas Longhorns</option>
+  </select>
+  <button class="btn-mv" onclick="startMultiview()">▶ Start Multiview</button>
+</div>
+
+<div class="status-bar">
+  <div class="status-item"><span id="streamCountStatus">0 active streams</span></div>
+  <div class="status-item" id="mvStatus"></div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-const SERVER = 'https://broadcastpal-server-production.up.railway.app';
-const SUPABASE_URL = 'https://hvqzrdlbtfezwuveincs.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh2cXpyZGxidGZlend1dmVpbmNzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMyOTA1MTgsImV4cCI6MjA3ODg2NjUxOH0.30_fdpT1hu_m3zyf-8IywXWIozjIDnqv5RHs6T9hCTo';
-const SCHOOL = 'OU';
-const NGINX_HLS = 'https://broadcastpal-nginx-production.up.railway.app/hls';
+const SERVER   = 'https://broadcastpal-server-production.up.railway.app';
+const SUPABASE = 'https://hvqzrdlbtfezwuveincs.supabase.co';
+const SKEY     = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh2cXpyZGxidGZlend1dmVpbmNzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMyOTA1MTgsImV4cCI6MjA3ODg2NjUxOH0.30_fdpT1hu_m3zyf-8IywXWIozjIDnqv5RHs6T9hCTo';
+const NGINX    = 'https://broadcastpal-nginx-production.up.railway.app/hls';
+const SCHOOL   = 'OU';
 
-let selectedStreams = new Set();
-let featuredStreamKey = null;
-let hlsPlayers = {};
+let featuredKey = null;
+let selectedMv  = new Set();
+let streams     = [];
+
+// ── API helpers ──────────────────────────────────────────────────────────────
 
 async function api(method, path, body) {
   try {
@@ -147,26 +166,23 @@ async function api(method, path, body) {
       body: body ? JSON.stringify(body) : undefined
     });
     return await r.json();
-  } catch(e) {
-    toast('API error: ' + e.message);
-    return null;
-  }
+  } catch(e) { toast('Server error'); return null; }
 }
 
-async function supabasePatch(hlsUrl) {
-  try {
-    await fetch(`${SUPABASE_URL}/rest/v1/xsen_stations?school=eq.${SCHOOL}`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': SUPABASE_KEY,
-        'Authorization': `Bearer ${SUPABASE_KEY}`,
-        'Prefer': 'return=minimal'
-      },
-      body: JSON.stringify({ hls_stream_url: hlsUrl })
-    });
-  } catch(e) { console.error('Supabase error:', e); }
+async function patchSupabase(hlsUrl) {
+  await fetch(`${SUPABASE}/rest/v1/xsen_stations?school=eq.${SCHOOL}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type':'application/json',
+      'apikey': SKEY,
+      'Authorization': `Bearer ${SKEY}`,
+      'Prefer': 'return=minimal'
+    },
+    body: JSON.stringify({ hls_stream_url: hlsUrl })
+  });
 }
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
 
 function toast(msg) {
   const el = document.getElementById('toast');
@@ -175,253 +191,191 @@ function toast(msg) {
   setTimeout(() => el.classList.remove('show'), 3000);
 }
 
-function updateFanStatus(hlsUrl) {
-  const val = document.getElementById('fanStatusValue');
-  const btn = document.getElementById('stopFansBtn');
+// ── Fan status bar ────────────────────────────────────────────────────────────
+
+function setFanBar(hlsUrl) {
+  const v = document.getElementById('fanBarValue');
+  const b = document.getElementById('stopFansBtn');
   if (hlsUrl) {
-    val.textContent = '🔴 ' + (hlsUrl.split('/hls/')[1]?.replace('/index.m3u8','') || 'Live');
-    val.className = 'fan-status-value live';
-    btn.style.display = 'block';
+    const label = hlsUrl.includes('composite') ? 'Multiview' : hlsUrl.split('/hls/')[1]?.replace('/index.m3u8','') || 'Live';
+    v.innerHTML = `<span class="dot"></span>${label}`;
+    v.className = 'fan-bar-value live';
+    b.style.display = 'inline-block';
   } else {
-    val.textContent = '⬤ Offline';
-    val.className = 'fan-status-value offline';
-    btn.style.display = 'none';
+    v.textContent = '⬤ Offline';
+    v.className = 'fan-bar-value';
+    b.style.display = 'none';
   }
 }
 
-async function featureStream(streamKey, hlsUrl) {
-  featuredStreamKey = streamKey;
-  await supabasePatch(hlsUrl);
-  updateFanStatus(hlsUrl);
-  toast('▶ Featuring ' + streamKey + ' to fans');
-  loadStreams();
+// ── Feature / Stop ────────────────────────────────────────────────────────────
+
+async function featureStream(streamKey) {
+  const s = streams.find(s => s.streamKey === streamKey);
+  const hlsUrl = s?.hlsUrl || `${NGINX}/${streamKey}/index.m3u8`;
+  featuredKey = streamKey;
+  await patchSupabase(hlsUrl);
+  setFanBar(hlsUrl);
+  toast('▶ ' + streamKey + ' → On Air');
+  renderFeeds();
 }
 
 async function stopFanStream() {
-  featuredStreamKey = null;
-  await supabasePatch(null);
-  updateFanStatus(null);
-  toast('⬛ Fan stream stopped');
-  loadStreams();
+  featuredKey = null;
+  await patchSupabase(null);
+  setFanBar(null);
+  toast('⬛ Broadcast stopped');
+  renderFeeds();
 }
 
-function attachHlsPlayer(videoEl, hlsUrl) {
-  if (!videoEl || !hlsUrl) return null;
-  if (typeof Hls === 'undefined') return null;
+// ── Render feeds ──────────────────────────────────────────────────────────────
 
-  if (Hls.isSupported()) {
-    const hls = new Hls({
-      lowLatencyMode: true,
-      enableWorker: true,
-      maxBufferLength: 10,
-      liveSyncDurationCount: 3,
-      liveMaxLatencyDurationCount: 10,
-      manifestLoadingTimeOut: 10000,
-      manifestLoadingMaxRetry: 6,
-      levelLoadingTimeOut: 10000,
-      levelLoadingMaxRetry: 6,
-      fragLoadingTimeOut: 20000,
-      fragLoadingMaxRetry: 6,
-      liveDurationInfinity: true,
-      liveBackBufferLength: 0,
-      maxMaxBufferLength: 4,
-    });
-
-    hls.loadSource(hlsUrl);
-    hls.attachMedia(videoEl);
-
-    hls.on(Hls.Events.MANIFEST_PARSED, () => {
-      videoEl.play().catch(() => {});
-    });
-
-    hls.on(Hls.Events.ERROR, (event, data) => {
-      if (data.fatal) {
-        switch (data.type) {
-          case Hls.ErrorTypes.NETWORK_ERROR:
-            console.warn('[HLS] Network error — retrying...');
-            hls.startLoad();
-            break;
-          case Hls.ErrorTypes.MEDIA_ERROR:
-            console.warn('[HLS] Media error — recovering...');
-            hls.recoverMediaError();
-            break;
-          default:
-            console.warn('[HLS] Fatal error — destroying');
-            hls.destroy();
-            break;
-        }
-      }
-    });
-
-    return hls;
-
-  } else if (videoEl.canPlayType('application/vnd.apple.mpegurl')) {
-    videoEl.src = hlsUrl;
-    videoEl.play().catch(() => {});
-  }
-
-  return null;
-}
-
-async function loadStreams() {
-  const data = await api('GET', '/streams');
-  if (!data) return;
-  const streams = data.active || [];
-  document.getElementById('streamCount').textContent = `(${streams.length})`;
-
-  const list = document.getElementById('streamList');
-  const selector = document.getElementById('feedSelector');
+function renderFeeds() {
+  const grid = document.getElementById('feedGrid');
+  const mvSel = document.getElementById('mvFeedSelector');
 
   if (!streams.length) {
-    list.innerHTML = '<div class="empty">No active streams</div>';
-    selector.innerHTML = '<div class="empty" style="grid-column:1/-1;padding:16px">No streams available</div>';
-    Object.values(hlsPlayers).forEach(h => h && h.destroy && h.destroy());
-    hlsPlayers = {};
+    grid.innerHTML = '<div class="no-streams" style="grid-column:1/-1;">No active streams — waiting for cameras…</div>';
+    mvSel.innerHTML = '';
+    document.getElementById('streamCountStatus').textContent = '0 active streams';
     return;
   }
 
-  list.innerHTML = streams.map(s => {
-    const isFeatured = s.streamKey === featuredStreamKey;
-    const hlsUrl = s.hlsUrl || `${NGINX_HLS}/${s.streamKey}/index.m3u8`;
+  document.getElementById('streamCountStatus').textContent = streams.length + ' active stream' + (streams.length > 1 ? 's' : '');
+
+  grid.innerHTML = streams.map((s, i) => {
+    const hlsUrl  = s.hlsUrl || `${NGINX}/${s.streamKey}/index.m3u8`;
+    const onAir   = s.streamKey === featuredKey;
+    const camNum  = i + 1;
+
     return `
-    <div class="stream-card ${isFeatured ? 'is-featured' : ''}">
-      <div class="stream-preview">
-        <video id="preview-${s.streamKey}" autoplay muted playsinline style="width:100%;height:100%;object-fit:cover;display:block;"></video>
-        <div class="preview-label">CAM · ${s.streamKey.slice(0,6).toUpperCase()}</div>
-        <div class="preview-live-dot"></div>
+    <div class="feed-card ${onAir ? 'on-air' : ''}">
+      <div class="feed-video-wrap">
+        <video
+          src="${hlsUrl}"
+          autoplay muted playsinline controls
+          style="width:100%;height:100%;object-fit:cover;display:block;"
+          onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
+        ></video>
+        <div class="offline-placeholder" style="display:none;">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 10l4.553-2.276A1 1 0 0121 8.723v6.554a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/></svg>
+          <span>No Signal</span>
+        </div>
+        ${onAir ? '<div class="on-air-badge">● On Air</div>' : ''}
+        <div class="cam-label">CAM ${camNum}</div>
       </div>
-      <div class="stream-card-body">
-        <div class="stream-card-top">
-          <span class="stream-card-title">${s.label || 'Feed ' + s.streamKey.slice(0,6)}
-            ${isFeatured ? '<span class="featured-badge">● On Air</span>' : '<span class="live-badge">Live</span>'}
-          </span>
-        </div>
-        <div class="stream-card-meta">Key: ${s.streamKey} &nbsp;·&nbsp; ${s.userId}</div>
-        <div class="stream-card-actions">
-          <button class="btn btn-feature btn-sm" onclick="featureStream('${s.streamKey}', '${hlsUrl}')">
-            ${isFeatured ? '✓ On Air' : '▶ Feature'}
-          </button>
-        </div>
+      <div class="feed-body">
+        <div class="feed-key">${s.label || s.streamKey} &nbsp;·&nbsp; ${s.userId.split('@')[0]}</div>
+        ${onAir
+          ? `<button class="btn btn-on-air">✓ On Air</button>`
+          : `<button class="btn btn-feature" onclick="featureStream('${s.streamKey}')">▶ Feature to Fans</button>`
+        }
       </div>
     </div>`;
   }).join('');
 
-  // Wait for DOM then attach HLS players
-  setTimeout(() => {
-    streams.forEach(s => {
-      const hlsUrl = s.hlsUrl || `${NGINX_HLS}/${s.streamKey}/index.m3u8`;
-      if (!hlsPlayers[s.streamKey]) {
-        const videoEl = document.getElementById(`preview-${s.streamKey}`);
-        if (videoEl) {
-          hlsPlayers[s.streamKey] = attachHlsPlayer(videoEl, hlsUrl);
-        }
-      }
-    });
-    Object.keys(hlsPlayers).forEach(key => {
-      if (!streams.find(s => s.streamKey === key)) {
-        if (hlsPlayers[key]) hlsPlayers[key].destroy();
-        delete hlsPlayers[key];
-      }
-    });
-  }, 150);
-
-  selector.innerHTML = streams.map(s => `
-    <div class="stream-item ${selectedStreams.has(s.streamKey) ? 'selected' : ''}"
-         onclick="toggleStream('${s.streamKey}', this)">
-      <div class="key">${s.label || s.streamKey.slice(0,8)}</div>
-      <div class="meta">${s.streamKey}</div>
-    </div>
+  // Multiview selector
+  mvSel.innerHTML = streams.map(s => `
+    <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;color:var(--text2);">
+      <input type="checkbox" value="${s.streamKey}" ${selectedMv.has(s.streamKey) ? 'checked' : ''}
+        onchange="toggleMv('${s.streamKey}', this.checked)"
+        style="width:auto;margin:0;">
+      ${s.streamKey.slice(0,8)}
+    </label>
   `).join('');
 }
 
-function toggleStream(key, el) {
-  if (selectedStreams.has(key)) {
-    selectedStreams.delete(key);
-    el.classList.remove('selected');
+function toggleMv(key, checked) {
+  if (checked) {
+    if (selectedMv.size >= 4) { toast('Max 4 feeds'); return; }
+    selectedMv.add(key);
   } else {
-    if (selectedStreams.size >= 4) { toast('Max 4 feeds'); return; }
-    selectedStreams.add(key);
-    el.classList.add('selected');
+    selectedMv.delete(key);
   }
 }
+
+// ── Load streams ──────────────────────────────────────────────────────────────
+
+async function loadStreams() {
+  const data = await api('GET', '/streams');
+  if (!data) return;
+  streams = data.active || [];
+  document.getElementById('connStatus').textContent = '● Connected';
+  document.getElementById('connStatus').style.color = 'var(--live)';
+  renderFeeds();
+}
+
+// ── Multiview ─────────────────────────────────────────────────────────────────
 
 async function loadMultiview() {
   const sessions = await api('GET', '/multiview');
   if (!sessions) return;
-  document.getElementById('mvCount').textContent = `(${sessions.length})`;
-  const list = document.getElementById('mvList');
-  if (!sessions.length) { list.innerHTML = '<div class="empty">No active sessions</div>'; return; }
-  list.innerHTML = sessions.map(s => `
-    <div class="mv-session">
-      <div class="mv-header">
-        <div>
-          <div class="mv-title">${s.id} <span class="${s.running ? 'live-badge' : ''}">${s.running ? 'Running' : 'Stopped'}</span></div>
-          <div class="card-meta" style="margin-top:3px;">Started: ${new Date(s.startedAt).toLocaleTimeString()} &nbsp;·&nbsp; ${s.streams.length} feed(s)</div>
-        </div>
-        <button class="btn btn-danger btn-sm" onclick="stopSession('${s.id}')">Stop</button>
-      </div>
-      <div class="card-meta">Feeds: ${s.streams.join(', ')}</div>
-      <div style="margin-top:10px;">
-        <div style="font-size:11px;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px;">Feature to fans</div>
-        <button class="btn btn-feature btn-sm" onclick="featureStream('multiview', '${NGINX_HLS}/composite/index.m3u8')">▶ Feature Multiview</button>
-      </div>
-      <div style="margin-top:10px;">
-        <div style="font-size:11px;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px;">Audio source</div>
-        <div class="audio-btns">
-          ${s.streams.map((key, i) => `
-            <button class="audio-btn ${s.activeAudioStream === i ? 'active' : ''}" onclick="switchAudio('${s.id}', ${i}, this)">Feed ${i+1}</button>
-          `).join('')}
-        </div>
-      </div>
-      <div style="margin-top:10px;">
-        <div style="font-size:11px;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px;">Score overlay</div>
-        <select onchange="switchOverlay('${s.id}', this.value)">
-          <option value="">No overlay</option>
-          <option value="201" ${s.overlayTeam==='201'?'selected':''}>Oklahoma Sooners</option>
-          <option value="197" ${s.overlayTeam==='197'?'selected':''}>Oklahoma State Cowboys</option>
-          <option value="251" ${s.overlayTeam==='251'?'selected':''}>Texas Longhorns</option>
-        </select>
-      </div>
-    </div>
-  `).join('');
-}
-
-async function startMultiview() {
-  if (!selectedStreams.size) { toast('Select at least 1 feed'); return; }
-  const result = await api('POST', '/multiview/start', {
-    streamKeys: [...selectedStreams],
-    overlayTeam: document.getElementById('overlayTeam').value || undefined,
-    destinations: []
-  });
-  if (result?.id) { toast(`Multiview started: ${result.id}`); selectedStreams.clear(); refreshAll(); }
-}
-
-async function stopSession(id) {
-  await api('POST', `/multiview/${id}/stop`);
-  toast('Session stopped');
-  loadMultiview();
-}
-
-async function switchAudio(id, streamIndex, btn) {
-  const result = await api('POST', `/multiview/${id}/audio`, {streamIndex});
-  if (result?.ok) {
-    btn.closest('.audio-btns').querySelectorAll('.audio-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    toast(`Audio → Feed ${streamIndex + 1}`);
+  const mvStatus = document.getElementById('mvStatus');
+  if (sessions.length) {
+    mvStatus.textContent = sessions.length + ' multiview session(s) running';
+  } else {
+    mvStatus.textContent = '';
   }
 }
 
-async function switchOverlay(id, teamId) {
-  await api('POST', `/multiview/${id}/overlay`, {teamId});
-  toast('Overlay updated');
+async function startMultiview() {
+  if (!selectedMv.size) { toast('Select feeds for multiview'); return; }
+  const result = await api('POST', '/multiview/start', {
+    streamKeys: [...selectedMv],
+    overlayTeam: document.getElementById('overlayTeam').value || undefined,
+    destinations: []
+  });
+  if (result?.id) {
+    toast('Multiview started — feature it to fans!');
+    const mvUrl = `${NGINX}/composite/index.m3u8`;
+    featuredKey = 'multiview';
+    await patchSupabase(mvUrl);
+    setFanBar(mvUrl);
+    selectedMv.clear();
+    refreshAll();
+  }
 }
 
-function refreshAll() { loadStreams(); loadMultiview(); }
+// ── Refresh ───────────────────────────────────────────────────────────────────
+
+// ── Director comms ────────────────────────────────────────────────────────────
+
+async function sendComms() {
+  const input  = document.getElementById('commsInput');
+  const target = document.getElementById('commsTarget');
+  const msg    = input.value.trim();
+  if (!msg) return;
+
+  const targetVal  = target.value;
+  const targetLabel = target.options[target.selectedIndex].text;
+
+  // Send to server — server relays to glasses via TPA session
+  const result = await api('POST', '/director-message', {
+    target: targetVal,
+    message: msg
+  });
+
+  // Log it in the comms panel
+  const log = document.getElementById('commsLog');
+  const item = document.createElement('div');
+  item.className = 'comms-log-item';
+  const time = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  item.innerHTML = `<span style="color:var(--text3);">${time}</span> → <span class="to">${targetLabel}</span>: <span class="msg">${msg}</span>`;
+  log.appendChild(item);
+  log.scrollTop = log.scrollHeight;
+
+  input.value = '';
+  toast(`Message sent to ${targetLabel}`);
+}
+
+function refreshAll() {
+  loadStreams();
+  loadMultiview();
+}
 
 refreshAll();
 setInterval(refreshAll, 10000);
 </script>
 </body>
 </html>
-
 
