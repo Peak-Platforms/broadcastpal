@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="media-src 'self' https: blob:; worker-src blob:;">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BroadcastPal — Director Dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest/dist/hls.min.js"></script>
@@ -26,7 +25,6 @@
   .panel{background:var(--bg);padding:20px;}
   .panel-title{font-family:var(--font-head);font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin-bottom:14px;}
   .card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px;}
-  .card-title{font-family:var(--font-head);font-size:15px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin-bottom:4px;}
   .card-meta{font-size:12px;color:var(--text2);}
   .live-badge{display:inline-flex;align-items:center;gap:5px;background:var(--accent);color:#fff;font-family:var(--font-head);font-size:10px;font-weight:700;letter-spacing:.08em;padding:2px 8px;border-radius:3px;text-transform:uppercase;margin-left:8px;}
   .featured-badge{display:inline-flex;align-items:center;gap:5px;background:var(--live);color:#fff;font-family:var(--font-head);font-size:10px;font-weight:700;letter-spacing:.08em;padding:2px 8px;border-radius:3px;text-transform:uppercase;margin-left:8px;}
@@ -208,38 +206,57 @@ async function stopFanStream() {
 }
 
 function attachHlsPlayer(videoEl, hlsUrl) {
+  if (!videoEl || !hlsUrl) return null;
   if (typeof Hls === 'undefined') return null;
+
   if (Hls.isSupported()) {
     const hls = new Hls({
       lowLatencyMode: true,
       enableWorker: true,
       maxBufferLength: 10,
+      liveSyncDurationCount: 3,
+      liveMaxLatencyDurationCount: 10,
+      manifestLoadingTimeOut: 10000,
+      manifestLoadingMaxRetry: 6,
+      levelLoadingTimeOut: 10000,
+      levelLoadingMaxRetry: 6,
+      fragLoadingTimeOut: 20000,
+      fragLoadingMaxRetry: 6,
     });
-   hls.on(Hls.Events.ERROR, (event, data) => {
-  if (data.fatal) {
-    switch (data.type) {
-      case Hls.ErrorTypes.NETWORK_ERROR:
-        hls.startLoad();
-        break;
-      case Hls.ErrorTypes.MEDIA_ERROR:
-        hls.recoverMediaError();
-        break;
-      default:
-        hls.destroy();
-        break;
-    }
-  }
-});
+
     hls.loadSource(hlsUrl);
     hls.attachMedia(videoEl);
+
     hls.on(Hls.Events.MANIFEST_PARSED, () => {
       videoEl.play().catch(() => {});
     });
+
+    hls.on(Hls.Events.ERROR, (event, data) => {
+      if (data.fatal) {
+        switch (data.type) {
+          case Hls.ErrorTypes.NETWORK_ERROR:
+            console.warn('[HLS] Network error — retrying...');
+            hls.startLoad();
+            break;
+          case Hls.ErrorTypes.MEDIA_ERROR:
+            console.warn('[HLS] Media error — recovering...');
+            hls.recoverMediaError();
+            break;
+          default:
+            console.warn('[HLS] Fatal error — destroying');
+            hls.destroy();
+            break;
+        }
+      }
+    });
+
     return hls;
+
   } else if (videoEl.canPlayType('application/vnd.apple.mpegurl')) {
     videoEl.src = hlsUrl;
     videoEl.play().catch(() => {});
   }
+
   return null;
 }
 
@@ -297,7 +314,6 @@ async function loadStreams() {
         }
       }
     });
-    // Clean up stale players
     Object.keys(hlsPlayers).forEach(key => {
       if (!streams.find(s => s.streamKey === key)) {
         if (hlsPlayers[key]) hlsPlayers[key].destroy();
@@ -356,7 +372,7 @@ async function loadMultiview() {
       </div>
       <div style="margin-top:10px;">
         <div style="font-size:11px;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px;">Score overlay</div>
-        <select onchange="switchOverlay('${s.id}', this.value)" style="flex:1;">
+        <select onchange="switchOverlay('${s.id}', this.value)">
           <option value="">No overlay</option>
           <option value="201" ${s.overlayTeam==='201'?'selected':''}>Oklahoma Sooners</option>
           <option value="197" ${s.overlayTeam==='197'?'selected':''}>Oklahoma State Cowboys</option>
@@ -369,7 +385,11 @@ async function loadMultiview() {
 
 async function startMultiview() {
   if (!selectedStreams.size) { toast('Select at least 1 feed'); return; }
-  const result = await api('POST', '/multiview/start', {streamKeys: [...selectedStreams], overlayTeam: document.getElementById('overlayTeam').value || undefined, destinations: []});
+  const result = await api('POST', '/multiview/start', {
+    streamKeys: [...selectedStreams],
+    overlayTeam: document.getElementById('overlayTeam').value || undefined,
+    destinations: []
+  });
   if (result?.id) { toast(`Multiview started: ${result.id}`); selectedStreams.clear(); refreshAll(); }
 }
 
@@ -400,3 +420,4 @@ setInterval(refreshAll, 10000);
 </script>
 </body>
 </html>
+
