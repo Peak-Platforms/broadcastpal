@@ -179,7 +179,6 @@ function attachHls(id, hlsUrl) {
   const videoEl = document.getElementById(id);
   if (!videoEl) return;
   if (window.Hls && Hls.isSupported()) {
-    const hls = new Hls({
     const hls = new Hls({ lowLatencyMode: true });
     hls.loadSource(hlsUrl);
     hls.attachMedia(videoEl);
