@@ -251,12 +251,14 @@ function renderFeeds() {
     return `
     <div class="feed-card ${onAir ? 'on-air' : ''}">
       <div class="feed-video-wrap">
-        <video
-          src="${hlsUrl}"
-          autoplay muted playsinline controls
-          style="width:100%;height:100%;object-fit:cover;display:block;"
-          onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
-        ></video>
+       <video
+  src="${hlsUrl}"
+  autoplay muted playsinline controls
+  style="width:100%;height:100%;object-fit:cover;display:block;"
+  onerror="setTimeout(()=>{this.load();this.play().catch(()=>{});},3000);"
+  onended="setTimeout(()=>{this.load();this.play().catch(()=>{});},3000);"
+  onstalled="setTimeout(()=>{this.load();this.play().catch(()=>{});},3000);"
+></video>
         <div class="offline-placeholder" style="display:none;">
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 10l4.553-2.276A1 1 0 0121 8.723v6.554a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/></svg>
           <span>No Signal</span>
