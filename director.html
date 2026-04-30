@@ -215,12 +215,21 @@ function attachHlsPlayer(videoEl, hlsUrl) {
       enableWorker: true,
       maxBufferLength: 10,
     });
-    hls.on(Hls.Events.ERROR, (event, data) => {
-      if (data.fatal) {
-        console.warn('[Director] HLS fatal error:', data.type);
+   hls.on(Hls.Events.ERROR, (event, data) => {
+  if (data.fatal) {
+    switch (data.type) {
+      case Hls.ErrorTypes.NETWORK_ERROR:
+        hls.startLoad();
+        break;
+      case Hls.ErrorTypes.MEDIA_ERROR:
+        hls.recoverMediaError();
+        break;
+      default:
         hls.destroy();
-      }
-    });
+        break;
+    }
+  }
+});
     hls.loadSource(hlsUrl);
     hls.attachMedia(videoEl);
     hls.on(Hls.Events.MANIFEST_PARSED, () => {
