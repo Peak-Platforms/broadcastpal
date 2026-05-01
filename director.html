@@ -565,7 +565,13 @@ function attachHls(videoEl, key) {
   if (hlsPlayers[key]) { hlsPlayers[key].destroy(); delete hlsPlayers[key]; }
   if (!videoEl) return;
   if (window.Hls && Hls.isSupported()) {
-    const hls = new Hls({ lowLatencyMode: true, maxBufferLength: 8 });
+   const hls = new Hls({ 
+  lowLatencyMode: false,
+  maxBufferLength: 30,
+  maxMaxBufferLength: 60,
+  liveSyncDurationCount: 3,
+  liveMaxLatencyDurationCount: 6
+});
     hls.loadSource(url);
     hls.attachMedia(videoEl);
     hls.on(Hls.Events.MANIFEST_PARSED, () => videoEl.play().catch(()=>{}));
