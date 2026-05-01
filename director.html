@@ -302,7 +302,7 @@ async function startMultiview() {
     destinations: []
   });
   if (result?.id) {
-    const mvUrl = `${NGINX}/composite/index.m3u8`;
+    const mvUrl = `${NGINX}/composite/stream.m3u8`;
     featuredKey = 'multiview';
     await patchSupabase(mvUrl);
     setFanBar(mvUrl);
