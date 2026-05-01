@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BroadcastPal — Director Console</title>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest/dist/hls.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #080909;
+  --bg2:      #0f1011;
+  --bg3:      #181a1b;
+  --bg4:      #202325;
+  --border:   rgba(255,255,255,0.07);
+  --border2:  rgba(255,255,255,0.12);
+  --text:     #e8e8e8;
+  --text2:    #7a7e82;
+  --text3:    #3e4245;
+  --accent:   #e8302a;
+  --live:     #22c55e;
+  --amber:    #f59e0b;
+  --font-head:'Bebas Neue', sans-serif;
+  --font-mono:'DM Mono', monospace;
+  --font-body:'DM Sans', sans-serif;
+  --r: 5px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+/* ── HEADER ── */
+header {
+  height: 48px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.logo {
+  font-family: var(--font-head);
+  font-size: 22px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.logo em { color: var(--accent); font-style: normal; }
+.logo-sub {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text3);
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  margin-left: 10px;
+  vertical-align: middle;
+}
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.conn-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--text3);
+  display: inline-block;
+  margin-right: 5px;
+  transition: background .3s;
+}
+.conn-dot.live { background: var(--live); box-shadow: 0 0 6px var(--live); }
+.conn-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text2);
+}
+.btn-refresh {
+  background: none;
+  border: 1px solid var(--border2);
+  color: var(--text2);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: .1em;
+  padding: 5px 10px;
+  border-radius: var(--r);
+  cursor: pointer;
+  transition: all .15s;
+}
+.btn-refresh:hover { border-color: var(--text2); color: var(--text); }
+
+/* ── ON AIR BAR ── */
+.on-air-bar {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 8px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+.oab-label {
+  font-family: var(--font-head);
+  font-size: 11px;
+  letter-spacing: .18em;
+  color: var(--text3);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.oab-status {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text2);
+  flex: 1;
+}
+.oab-status.live {
+  color: var(--live);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.pulse-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--live);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.85)} }
+.btn-stop-broadcast {
+  display: none;
+  font-family: var(--font-head);
+  font-size: 12px;
+  letter-spacing: .08em;
+  padding: 6px 14px;
+  background: #3f0d0b;
+  color: #fca5a5;
+  border: 1px solid #7f1d1d;
+  border-radius: var(--r);
+  cursor: pointer;
+  transition: all .15s;
+}
+.btn-stop-broadcast:hover { background: #5b1210; }
+
+/* ── COMMS BAR ── */
+.comms-bar {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 8px 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.comms-label {
+  font-family: var(--font-head);
+  font-size: 11px;
+  letter-spacing: .14em;
+  color: var(--text3);
+  white-space: nowrap;
+}
+.comms-select {
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  border-radius: var(--r);
+  padding: 6px 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  flex-shrink: 0;
+}
+.comms-input {
+  flex: 1;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: var(--r);
+  padding: 7px 12px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  transition: border-color .15s;
+  min-width: 0;
+}
+.comms-input:focus { outline: none; border-color: rgba(232,48,42,.4); }
+.comms-input::placeholder { color: var(--text3); }
+.btn-send {
+  font-family: var(--font-head);
+  font-size: 12px;
+  letter-spacing: .1em;
+  padding: 7px 16px;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  color: var(--text2);
+  border-radius: var(--r);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all .15s;
+}
+.btn-send:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── COMMS LOG ── */
+.comms-log {
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  padding: 0 20px;
+  max-height: 56px;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+.comms-log:empty { display: none; }
+.log-item {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text3);
+  padding: 3px 0;
+  border-bottom: 1px solid rgba(255,255,255,.03);
+}
+.log-item:last-child { border-bottom: none; }
+.log-time { color: var(--text3); }
+.log-target { color: var(--accent); }
+.log-msg { color: var(--text2); }
+
+/* ── FEED GRID ── */
+.feed-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  padding: 16px;
+  flex: 1;
+}
+@media(min-width: 860px) {
+  .feed-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+.feed-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: border-color .2s, box-shadow .2s;
+  display: flex;
+  flex-direction: column;
+}
+.feed-card.on-air {
+  border-color: var(--live);
+  box-shadow: 0 0 20px rgba(34,197,94,.15);
+}
+.feed-card.offline { opacity: .45; }
+
+.feed-video {
+  position: relative;
+  aspect-ratio: 16/9;
+  background: #000;
+  overflow: hidden;
+}
+.feed-video video {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.feed-offline-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: #000;
+}
+.feed-offline-icon {
+  font-size: 20px;
+  opacity: .3;
+}
+.feed-offline-text {
+  font-family: var(--font-head);
+  font-size: 10px;
+  letter-spacing: .16em;
+  color: var(--text3);
+  text-transform: uppercase;
+}
+.badge-onair {
+  position: absolute;
+  top: 8px; left: 8px;
+  background: var(--live);
+  color: #000;
+  font-family: var(--font-head);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  padding: 2px 7px;
+  border-radius: 3px;
+  text-transform: uppercase;
+}
+.badge-cam {
+  position: absolute;
+  top: 8px; right: 8px;
+  background: rgba(0,0,0,.75);
+  color: var(--text2);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: .06em;
+  padding: 2px 7px;
+  border-radius: 3px;
+  text-transform: uppercase;
+}
+.badge-detecting {
+  position: absolute;
+  bottom: 8px; left: 8px;
+  background: rgba(245,158,11,.15);
+  color: var(--amber);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  padding: 2px 7px;
+  border-radius: 3px;
+}
+
+.feed-body {
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+.feed-name {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text2);
+  letter-spacing: .04em;
+}
+.feed-name span { color: var(--text3); font-size: 10px; }
+
+.btn-feature {
+  font-family: var(--font-head);
+  font-size: 12px;
+  letter-spacing: .1em;
+  padding: 8px;
+  border-radius: var(--r);
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  transition: all .15s;
+  background: var(--live);
+  color: #000;
+  text-transform: uppercase;
+}
+.btn-feature:hover { opacity: .85; }
+.btn-feature:disabled {
+  background: #166534;
+  color: #86efac;
+  cursor: default;
+  opacity: 1;
+}
+.btn-feature.offline-btn {
+  background: var(--bg4);
+  color: var(--text3);
+  cursor: default;
+  border: 1px solid var(--border);
+}
+
+/* ── BOTTOM BAR ── */
+.bottom-bar {
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+  padding: 8px 20px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+.bb-stat {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text3);
+  letter-spacing: .06em;
+}
+.bb-stat span { color: var(--text2); }
+
+/* ── EMPTY STATE ── */
+.empty-state {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  gap: 12px;
+}
+.empty-icon { font-size: 32px; opacity: .2; }
+.empty-title {
+  font-family: var(--font-head);
+  font-size: 14px;
+  letter-spacing: .2em;
+  color: var(--text3);
+  text-transform: uppercase;
+}
+.empty-sub {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text3);
+}
+
+/* ── TOAST ── */
+.toast {
+  position: fixed;
+  bottom: 20px; right: 20px;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: var(--r);
+  padding: 10px 16px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text);
+  z-index: 999;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: all .25s;
+  pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div>
+    <span class="logo">Broadcast<em>Pal</em></span>
+    <span class="logo-sub">Director Console</span>
+  </div>
+  <div class="header-right">
+    <span class="conn-label"><span class="conn-dot" id="connDot"></span><span id="connLabel">Connecting…</span></span>
+    <button class="btn-refresh" onclick="refreshAll()">↻ REFRESH</button>
+  </div>
+</header>
+
+<!-- ON AIR BAR -->
+<div class="on-air-bar">
+  <span class="oab-label">On Air →</span>
+  <div class="oab-status" id="oabStatus">Offline</div>
+  <button class="btn-stop-broadcast" id="stopBtn" onclick="stopBroadcast()">⬛ Stop Broadcast</button>
+</div>
+
+<!-- COMMS BAR -->
+<div class="comms-bar">
+  <span class="comms-label">📢 MSG</span>
+  <select class="comms-select" id="commsTarget">
+    <option value="all">All Operators</option>
+    <option value="camera1">CAM 1</option>
+    <option value="camera2">CAM 2</option>
+    <option value="camera3">CAM 3</option>
+    <option value="camera4">CAM 4</option>
+  </select>
+  <input class="comms-input" id="commsInput" type="text"
+    placeholder="Message displays on operator glasses…" maxlength="80"
+    onkeydown="if(event.key==='Enter') sendComms()">
+  <button class="btn-send" onclick="sendComms()">SEND ➤</button>
+</div>
+<div class="comms-log" id="commsLog"></div>
+
+<!-- FEED GRID -->
+<div class="feed-grid" id="feedGrid"></div>
+
+<!-- BOTTOM BAR -->
+<div class="bottom-bar">
+  <span class="bb-stat">STREAMS: <span id="streamCount">0</span></span>
+  <span class="bb-stat">INGEST: <span>157.245.208.49:1935</span></span>
+  <span class="bb-stat">HLS: <span>:8080/hls</span></span>
+  <span class="bb-stat" id="lastPoll">LAST POLL: —</span>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CONFIG ────────────────────────────────────────────────────────────────────
+const NGINX_BASE  = 'http://157.245.208.49:8080';
+const SUPA        = 'https://hvqzrdlbtfezwuveincs.supabase.co';
+const SKEY        = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh2cXpyZGxidGZlend1dmVpbmNzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMyOTA1MTgsImV4cCI6MjA3ODg2NjUxOH0.30_fdpT1hu_m3zyf-8IywXWIozjIDnqv5RHs6T9hCTo';
+const SCHOOL      = 'OU';
+const CAMERA_KEYS = ['camera1','camera2','camera3','camera4'];
+const POLL_MS     = 8000;
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let featuredKey   = null;
+let liveStreams    = new Set();
+let hlsPlayers    = {};
+let pollTimer     = null;
+
+// ── SUPABASE ──────────────────────────────────────────────────────────────────
+async function patchSupabase(hlsUrl) {
+  try {
+    await fetch(`${SUPA}/rest/v1/xsen_stations?school=eq.${SCHOOL}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SKEY,
+        'Authorization': `Bearer ${SKEY}`,
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ hls_stream_url: hlsUrl })
+    });
+  } catch(e) { toast('Supabase error'); }
+}
+
+// ── STREAM DETECTION ──────────────────────────────────────────────────────────
+async function probeStream(key) {
+  try {
+    const r = await fetch(`${NGINX_BASE}/hls/${key}/index.m3u8`, {
+      method: 'GET', cache: 'no-store',
+      signal: AbortSignal.timeout(3000)
+    });
+    return r.ok;
+  } catch(e) { return false; }
+}
+
+async function detectStreams() {
+  const results = await Promise.all(CAMERA_KEYS.map(k => probeStream(k)));
+  const newLive = new Set(CAMERA_KEYS.filter((k, i) => results[i]));
+
+  // Update connection indicator
+  document.getElementById('connDot').className = 'conn-dot live';
+  document.getElementById('connLabel').textContent = 'Connected';
+  document.getElementById('lastPoll').innerHTML =
+    'LAST POLL: <span>' + new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',second:'2-digit'}) + '</span>';
+  document.getElementById('streamCount').textContent = newLive.size;
+
+  // Handle each camera — only change what changed
+  CAMERA_KEYS.forEach(key => {
+    const wasLive = liveStreams.has(key);
+    const isLive  = newLive.has(key);
+
+    if (!wasLive && isLive) {
+      // Came online — attach player
+      liveStreams.add(key);
+      updateCardState(key);
+      const el = document.getElementById(`vid-${key}`);
+      if (el) attachHls(el, key);
+    } else if (wasLive && !isLive) {
+      // Went offline — destroy player
+      liveStreams.delete(key);
+      destroyHls(key);
+      updateCardState(key);
+      if (featuredKey === key) {
+        stopBroadcast();
+        toast('⚠ ' + key + ' went offline');
+      }
+    }
+    // Still same state — do nothing, don't touch the player
+  });
+}
+
+// ── HLS PLAYER ────────────────────────────────────────────────────────────────
+function attachHls(videoEl, key) {
+  const url = `${NGINX_BASE}/hls/${key}/index.m3u8`;
+  if (hlsPlayers[key]) { hlsPlayers[key].destroy(); delete hlsPlayers[key]; }
+  if (!videoEl) return;
+  if (window.Hls && Hls.isSupported()) {
+    const hls = new Hls({ lowLatencyMode: true, maxBufferLength: 8 });
+    hls.loadSource(url);
+    hls.attachMedia(videoEl);
+    hls.on(Hls.Events.MANIFEST_PARSED, () => videoEl.play().catch(()=>{}));
+    hls.on(Hls.Events.ERROR, (e, d) => { if (d.fatal) { hls.destroy(); delete hlsPlayers[key]; }});
+    hlsPlayers[key] = hls;
+  } else if (videoEl.canPlayType('application/vnd.apple.mpegurl')) {
+    videoEl.src = url;
+    videoEl.play().catch(()=>{});
+  }
+}
+
+function destroyHls(key) {
+  if (hlsPlayers[key]) { hlsPlayers[key].destroy(); delete hlsPlayers[key]; }
+}
+
+// ── FEATURE / STOP ────────────────────────────────────────────────────────────
+async function featureStream(key) {
+  const prev = featuredKey;
+  featuredKey = key;
+  await patchSupabase(`${NGINX_BASE}/hls/${key}/index.m3u8`);
+  updateOnAirBar(key);
+  if (prev) updateCardState(prev);
+  updateCardState(key);
+  toast(`▶ ${key} → On Air`);
+}
+
+async function stopBroadcast() {
+  const prev = featuredKey;
+  featuredKey = null;
+  await patchSupabase(null);
+  updateOnAirBar(null);
+  if (prev) updateCardState(prev);
+  toast('⬛ Broadcast stopped');
+}
+
+function updateOnAirBar(key) {
+  const status = document.getElementById('oabStatus');
+  const btn    = document.getElementById('stopBtn');
+  if (key) {
+    status.className = 'oab-status live';
+    status.innerHTML = `<div class="pulse-dot"></div>${key.toUpperCase()}`;
+    btn.style.display = 'inline-block';
+  } else {
+    status.className = 'oab-status';
+    status.textContent = 'Offline';
+    btn.style.display = 'none';
+  }
+}
+
+// ── RENDER — build grid once on load, then only patch state ──────────────────
+function initialRender() {
+  const grid = document.getElementById('feedGrid');
+  grid.innerHTML = CAMERA_KEYS.map((key, i) => `
+    <div class="feed-card offline" id="card-${key}">
+      <div class="feed-video" id="video-wrap-${key}">
+        <video id="vid-${key}" autoplay muted playsinline style="width:100%;height:100%;object-fit:cover;display:none;"></video>
+        <div class="feed-offline-overlay" id="offline-${key}">
+          <div class="feed-offline-icon">○</div>
+          <div class="feed-offline-text">No Signal</div>
+        </div>
+        <div class="badge-cam">CAM ${i+1}</div>
+        <div class="badge-onair" id="badge-onair-${key}" style="display:none;">● On Air</div>
+      </div>
+      <div class="feed-body">
+        <div class="feed-name" id="name-${key}">${key} <span>· OFFLINE</span></div>
+        <button class="btn-feature offline-btn" id="btn-${key}" disabled>No Signal</button>
+      </div>
+    </div>`).join('');
+}
+
+function updateCardState(key) {
+  const isLive  = liveStreams.has(key);
+  const isOnAir = key === featuredKey;
+  const card    = document.getElementById(`card-${key}`);
+  const vid     = document.getElementById(`vid-${key}`);
+  const offline = document.getElementById(`offline-${key}`);
+  const badge   = document.getElementById(`badge-onair-${key}`);
+  const name    = document.getElementById(`name-${key}`);
+  const btn     = document.getElementById(`btn-${key}`);
+  if (!card) return;
+
+  // Card border
+  card.className = `feed-card ${isOnAir ? 'on-air' : ''} ${!isLive ? 'offline' : ''}`;
+
+  // Video / offline overlay
+  if (isLive) {
+    vid.style.display = 'block';
+    offline.style.display = 'none';
+  } else {
+    vid.style.display = 'none';
+    offline.style.display = 'flex';
+  }
+
+  // On air badge
+  badge.style.display = isOnAir ? 'block' : 'none';
+
+  // Name
+  name.innerHTML = `${key} <span>· ${isLive ? 'LIVE' : 'OFFLINE'}</span>`;
+
+  // Button
+  if (isOnAir) {
+    btn.className = 'btn-feature'; btn.disabled = true; btn.textContent = '✓ On Air';
+    btn.onclick = null;
+  } else if (isLive) {
+    btn.className = 'btn-feature'; btn.disabled = false; btn.textContent = '▶ Feature to Fans';
+    btn.onclick = () => featureStream(key);
+  } else {
+    btn.className = 'btn-feature offline-btn'; btn.disabled = true; btn.textContent = 'No Signal';
+    btn.onclick = null;
+  }
+}
+
+function refreshCards() {
+  CAMERA_KEYS.forEach(k => updateCardState(k));
+}
+
+// ── COMMS ─────────────────────────────────────────────────────────────────────
+async function sendComms() {
+  const input  = document.getElementById('commsInput');
+  const sel    = document.getElementById('commsTarget');
+  const msg    = input.value.trim();
+  if (!msg) return;
+  const targetLabel = sel.options[sel.selectedIndex].text;
+
+  // Log it locally (server-side delivery to glasses TBD)
+  const log  = document.getElementById('commsLog');
+  const item = document.createElement('div');
+  item.className = 'log-item';
+  const t = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  item.innerHTML = `<span class="log-time">${t}</span> → <span class="log-target">${targetLabel}</span>: <span class="log-msg">${msg}</span>`;
+  log.appendChild(item);
+  log.scrollTop = log.scrollHeight;
+  input.value = '';
+  toast(`Message sent → ${targetLabel}`);
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────────────────
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+function refreshAll() { detectStreams(); }
+
+initialRender();
+refreshAll();
+pollTimer = setInterval(refreshAll, POLL_MS);
+</script>
+</body>
+</html>
